@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html>
+  <head>
+    <title>Email Signup: Astronomy Picture of the Day (APOD)</title>
+    <meta name="description" content="A service that delivers a daily email containing the astronomy picture of the day.">
+    <meta name="keywords" content="APOD, astronomy, astronomy picture of the day, NASA, NASA pictures, pictures of space, pictures of the universe, email distribution, email signup, signup, space, daily email">
+    <meta name="google-site-verification" content="w7BEFx6bep8ZOyqTnyemg9SEvOytijcdM1kpNRlbBfQ" />
+    <link rel="stylesheet" href="style.css">
+    
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script> 
+    <script type="text/javascript">
+      $(document).ready(function() {
+        $("#request-form").submit(function() {
+          $("#form-container").slideUp("fast");
+          var args = "string="+$('#email').val()+"&signup="+$('#addremove:checked').val()+"&reference="+$('#refNote').val()+"&comments="+$('#commentNote').val()
+          $.ajax({
+            type: "POST",
+            url: "/signup",
+            data: args,
+            success: function(response) {
+              if( response.indexOf("Oops") >= 0 ) {
+                $("#form-container").slideDown("fast");
+                $("#form-answer").replaceWith('<div id="form-answer"><p style="color: red;font-weight: bold">'+response+'</p></div>');
+              } else {
+                $("#form-answer").replaceWith('<div id="form-answer"><h2>'+response+'</h2></div><hr>');
+              }
+            } // success function
+          }); // .ajax
+        }); // submit form
+      });
+    </script>
+    
+  </head>
+
+  <body>
+  
+<div id="page-container">
+
+<div id="header">
+  <h1>
+  <a href=http://apod.nasa.gov/apod/>APOD</a> - 
+  <a href=http://www.nasa.gov/>NASA</a> -
+  <a href=http://gregtracy.com/>GREG</a>
+  </h1>
+</div>
+
+<div id="content">
+
+<div id="title">
+  <h1>Email Signup:<br>Astronomy Picture of the Day (APOD)</h1>
+</div>
+<div id="instruction-container">
+ <div id="instructions">
+Get <a href=http://apod.nasa.gov/apod/>APOD</a> in your email inbox each day!</p>
+<p>This project was originally started for my father when I was in grad school. He 
+wanted a more efficient way of viewing <a href="http://apod.nasa.gov/apod/">NASA's APOD site</a> 
+every day. Since, at the time, RSS had not really taken off, I wrote a little script 
+that scraped the APOD page and packaged it in a nice little email for him.</p>
+<p>Now it's been six plus years and there are <strong>{{ counter }}</strong> people on the distribution 
+list. Who knew!? </p>
+<p>If you'd like to be added to the email distribution list, please fill out the 
+form below and click the submit button. If you'd like to see a sample email (today's), 
+check it out <a href="pictureoftheday.html">here</a>.</p>
+<p>The APOD pictures are brought to you by 
+<a href=http://antwrp.gsfc.nasa.gov/htmltest/rjn.html>Robert Nemiroff</a> and 
+<a href=http://antwrp.gsfc.nasa.gov/htmltest/jbonnell/www/bonnell.html>Jerry Bonnell</a>. 
+Please comply with all copyright notices.</p>
+
+<hr>
+
+<div id="form-answer">
+</div>
+
+<div id="form-container">
+    <form id=request-form method=post onsubmit="return false">
+      Your email address:
+      <input id="email" type=text size=30 name="string">
+      <input id="addremove" type=radio name="signup" value=signup checked>Signup
+      <input id="addremove" type=radio name="signup" value=remove>Remove<br><p>
+
+      How did you hear about this? <p> <input id="refNote" type=text size=80 name="reference"><br><p>
+      Share more thoughts <p> <input id="commentNote" type=text size=80 name="comments"><br>
+      <p><input type=submit value=Submit> <input type=reset>
+    </form>
+</div>
+
+
+ </div>
+ <div id="social-container">
+  <h2>Tell a friend!</h2>
+  
+  <div class="addthis_toolbox addthis_default_style">
+   <a class="addthis_button_email"></a>
+  </div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pub=xa-4ae9329d4251a5cf"></script>
+  
+  <p>
+  <a name="fb_share" type="button_count" share_url="http://pages.cs.wisc.edu/~gtracy/astronomy/signup.htm"></a>
+  <script src="http://static.ak.fbcdn.net/connect.php/js/FB.Share" type="text/javascript"></script>
+
+  <p>
+  <script type="text/javascript"> 
+  tweetmeme_style='compact';
+  tweetmeme_source='gregtracy';
+  </script>
+  <script type="text/javascript" src="http://tweetmeme.com/i/scripts/button.js"></script>
+  
+  <p>
+  <script src="http://www.stumbleupon.com/hostedbadge.php"></script>
+  
+  <p>  
+  <script type="text/javascript">
+    digg_url = 'http://apodemail.appsot.com/';
+    digg_bgcolor = 'white';
+    digg_skin = 'compact';
+    digg_window = 'new';
+    </script>
+    <script src="http://digg.com/tools/diggthis.js" type="text/javascript"></script>
+
+   <h2>Support me!</h2>
+   Please consider a donation to help cover our costs.<br><br>
+   <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+   <input type="hidden" name="cmd" value="_s-xclick">
+   <input type="hidden" name="hosted_button_id" value="99TCXWRTE6PHW">
+   <input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+   <img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
+   </form>
+   
+  </div>
+  
+</div>
+<div id="spacer"> </div>
+</div>
+
+<div id="footer">
+  <a href="mailto:gtracy@cs.wisc.edu">help</a>
+  
+</div>
+
+<!-- Created: Fri Nov 16 10:35:19 CST 2001 -->
+<!-- hhmts start -->
+<!-- hhmts end -->
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-2237321-7");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+</div>
+
+  </body>
+</html>

@@ -1,0 +1,41 @@
+application: apodemail
+version: 2
+runtime: python
+api_version: 1
+
+handlers:
+- url: /dailyemail
+  script: main.py
+  login: admin
+  
+- url: /email-queue
+  script: main.py
+  login: admin
+  
+- url: /signup
+  script: main.py
+
+- url: /ajax-submit
+  script: main.py
+  
+- url: /favicon.ico
+  static_files: favicon.ico
+  upload: favicon.ico
+
+- url: /pictureoftheday.*
+  script: main.py
+  
+- url: /remote_api
+  script: $PYTHON_LIB/google/appengine/ext/remote_api/handler.py
+  login: admin
+    
+- url: /robots.txt
+  static_files: robots.txt
+  upload: robots.txt
+  
+- url: /style.css
+  static_files: style.css
+  upload: style.css
+
+- url: /.*
+  script: main.py

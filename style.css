@@ -1,0 +1,138 @@
+html {
+  margin: 0;
+  padding: 0;
+} 
+
+body {
+  background-color: #264965;
+  font-family: Georgia, Times, serif;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  font-family: Georgia, Times, Geneva, Arial;
+}
+
+a: link {
+  color: #B53B24;
+}
+
+a: visited {
+  color: #264965;
+}
+
+#page-container {
+  background-color: #264965;
+  width: 800px;
+  margin: 0 auto;
+}
+
+#header {
+  background: #B53B24;
+  height: 60px;
+  padding: 10;
+  color: white;
+}
+
+#header a {
+  color: white;
+  text-decoration: none;
+  hover: #264965;
+}
+
+#header h1 {
+  font-family: Georgia, Times, serif;
+  font-size: 18px;
+  margin: 0;
+  padding: 0;
+  float: right;
+  margin-top: 15px;
+  padding-right: 30px;
+}
+
+#title h1 {
+  border-bottom-style: solid;
+  padding-left: 10px;
+}
+
+#content {
+  background: white;
+  margin: 0 auto;
+  padding: 5px;
+}
+
+#instruction-container {
+  width: 100%;
+}
+#instructions-container hr {
+  clear: both;
+}
+
+#instructions {
+  float: left;
+  width: 75%;
+  background: white;
+  padding-right: 10;
+  padding-left: 10;
+  padding-top: 4;
+  padding-bottom: 2;
+}
+
+#social-container {
+  float: right;
+  width: 20%;
+  height: 250px;
+  padding: 2px;
+  padding-left: 10px;
+  padding-top: 0px;
+}
+
+#social-container h2 {
+  font-size: 16px;
+  padding: 2px;
+  display: block;
+  color: white;
+  background: #B53B24;
+  text-align: center;
+}
+#spacer {
+  width: 100%;
+  padding: 1px;
+  margin: 1px;
+  clear: both;
+}
+
+#form-container {
+  clear: both;
+  background: white;
+  clear: both;
+  padding-left: 10;
+}
+
+#form-answer {
+  clear: both;
+  bakcground: white;
+  clear: both;
+  padding-left: 10;
+  margin: 20px;
+  text-align: center;
+}
+
+#footer {
+  height: 30px;
+  background: #656620;
+}
+
+#footer a {
+  font-family: Georgia, Times, serif;
+  font-size: 18px;
+  margin: 0;
+  padding: 0;
+  float: right;
+  margin-top: 6px;
+  padding-right: 30px;
+  color: white;
+  text-decoration: none;
+  hover: #264965;
+}
