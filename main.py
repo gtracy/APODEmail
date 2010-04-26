@@ -54,8 +54,7 @@ class SignupHandler(webapp.RequestHandler):
 
         # send email to the new user
         message = mail.EmailMessage()
-        message.sender='greg.tracy@att.net'                                      
-        message.reply_to = 'greg.tracy@att.net'
+        message.sender='gtracy@gmail.com'
         #message.body = "hello APOD world!"
 
         # first validate the email address
@@ -69,31 +68,32 @@ class SignupHandler(webapp.RequestHandler):
         blocked = False        
         # determine if this is a signup or remove request
         if self.request.get('signup') == 'signup':
+            email_addr = self.request.get('string').lower()
 
             # first check to see if the user is already on the list
-            q = db.GqlQuery("SELECT * FROM UserSignup WHERE email = :1", self.request.get('string'))
+            q = db.GqlQuery("SELECT * FROM UserSignup WHERE email = :1", email_addr)
             remove_entry = q.fetch(1)
             if len(remove_entry) > 0:
-              error_msg = "This address - %s - is already on the distribution list." % self.request.get('string')
+              error_msg = "This address - %s - is already on the distribution list." % email_addr
               logging.error(error_msg)
               self.response.out.write("Oops. It looks like this email address is already on the list.")
               return
             
             # if signing up, create a new user and add it to the store
             userSignup = UserSignup()
-            userSignup.email = self.request.get('string')
+            userSignup.email = email_addr
             userSignup.referral = self.request.get('reference')
             userSignup.notes = self.request.get('comments')
             
             # filter out requests if there is a URL in the comments field
             if re.search("http",userSignup.referral) or re.search("http",userSignup.notes):
-                error_msg = "Request to add - %s - has been BLOCKED because of illegal text in the comments field." % self.request.get('string')
+                error_msg = "Request to add - %s - has been BLOCKED because of illegal text in the comments field." % email_addr
                 logging.error(error_msg)
                 template_values = {'error':error_msg}
 
                 # setup the specific email parameters                        
                 message.subject="APOD Email Signup BLOCKED"
-                message.to = self.request.get('string')
+                message.to = email_addr
                 path = os.path.join(os.path.dirname(__file__), 'invalid-email.html')
                 message.html = template.render(path,template_values)
 
@@ -111,7 +111,7 @@ class SignupHandler(webapp.RequestHandler):
 
                 # setup the specific email parameters                        
                 message.subject="APOD Email Signup Confirmation"
-                message.to = self.request.get('string')
+                message.to = email_addr
                 path = os.path.join(os.path.dirname(__file__), 'added-email.html')
                 message.html = template.render(path,template_values)
 
@@ -120,8 +120,9 @@ class SignupHandler(webapp.RequestHandler):
                 msg = "Excellent! You've been added to the distribution list."
             
         else:
+            email_addr = self.request.get('string').lower()
             # if removing a user, first check to see that the request is valid
-            q = db.GqlQuery("SELECT * FROM UserSignup WHERE email = :1", self.request.get('string'))
+            q = db.GqlQuery("SELECT * FROM UserSignup WHERE email = :1", email_addr)
             remove_entry = q.fetch(1)
             if len(remove_entry) > 0:
                 # if the user was found, remove them
@@ -130,7 +131,7 @@ class SignupHandler(webapp.RequestHandler):
                 # setup the specific email parameters                        
                 message.subject="APOD Email Removal Request"
                 message.to = self.request.get('string')
-                template_values = { 'email':self.request.get('string'), 
+                template_values = { 'email':email_addr, 
                                     'referral':self.request.get('reference'),
                                     'notes':self.request.get('comments'),
                                  }
@@ -140,7 +141,7 @@ class SignupHandler(webapp.RequestHandler):
                 # ... and show the thank you confirmation page
                 msg = "You've been removed from the list... Thanks!"
             else:
-                error_msg = "This address - %s - is not on the distribution list!?" % self.request.get('string')
+                error_msg = "This address - %s - is not on the distribution list!?" % email_addr
                 logging.error(error_msg)
                 msg = "Oops. This address doesn't appear to be on the list."
                 blocked = True
@@ -197,7 +198,7 @@ class EmailWorker(webapp.RequestHandler):
             # send email 
             apod_message = mail.EmailMessage()
             apod_message.subject = subject
-            apod_message.sender = 'greg.tracy@att.net'
+            apod_message.sender = 'gtracy@gmail.com'
             apod_message.html = body
             apod_message.to = email
             if subject.find('APOD Email') > -1:

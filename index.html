@@ -35,8 +35,22 @@
   </head>
 
   <body>
+
   
 <div id="page-container">
+<div id="fb-root"></div>
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({appId: '100152036696886', status: true, cookie: true,
+             xfbml: true});
+  };
+  (function() {
+    var e = document.createElement('script'); e.async = true;
+    e.src = document.location.protocol +
+      '//connect.facebook.net/en_US/all.js';
+    document.getElementById('fb-root').appendChild(e);
+  }());
+</script>
 
 <div id="header">
   <h1>
@@ -85,6 +99,7 @@ Please comply with all copyright notices.</p>
       <p><input type=submit value=Submit> <input type=reset>
     </form>
 </div>
+  <fb:like href="http://apodemail.appspot.com" layout="button_count" show-faces="true" width="700" action="like" colorscheme="light" />
 
 
  </div>
@@ -99,7 +114,6 @@ Please comply with all copyright notices.</p>
   <p>
   <a name="fb_share" type="button_count" share_url="http://pages.cs.wisc.edu/~gtracy/astronomy/signup.htm"></a>
   <script src="http://static.ak.fbcdn.net/connect.php/js/FB.Share" type="text/javascript"></script>
-
   <p>
   <script type="text/javascript"> 
   tweetmeme_style='compact';
