@@ -2,3 +2,8 @@ cron:
 - description: daily email job
   url: /dailyemail
   schedule: every day 17:00
+
+- description: tally the user count
+  url: /usercount
+  schedule: every 3 hours
+  

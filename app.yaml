@@ -1,5 +1,5 @@
 application: apodemail
-version: 2
+version: 3
 runtime: python
 api_version: 1
 
@@ -7,7 +7,11 @@ handlers:
 - url: /dailyemail
   script: main.py
   login: admin
-  
+
+- url: /usercount
+  script: main.py
+  login: admin
+
 - url: /email-queue
   script: main.py
   login: admin

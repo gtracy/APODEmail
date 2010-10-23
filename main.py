@@ -32,14 +32,18 @@ class UserSignup(db.Model):
   notes = db.StringProperty(multiline=True)
   date = db.DateTimeProperty(auto_now_add=True)
 
+class UserCounter(db.Model):
+    userCount = db.IntegerProperty()
+    
+    
 class MainHandler(webapp.RequestHandler):
   def get(self):
       
       # figure out how many people are currently on the distribution list
-      q = db.GqlQuery("SELECT * FROM UserSignup")
+      counter = db.GqlQuery("SELECT * FROM UserCounter").get()
             
       # add the counter to the template values
-      template_values = { 'counter':q.count(), }
+      template_values = { 'counter':counter.userCount, }
       
       # generate the html
       path = os.path.join(os.path.dirname(__file__), 'index.html')
@@ -117,7 +121,7 @@ class SignupHandler(webapp.RequestHandler):
 
                 # setup the confirmation page on the web
                 #path = os.path.join(os.path.dirname(__file__), 'added.html')
-                msg = "Excellent! You've been added to the distribution list."
+                msg = "Excellent! You've been added to the list.<p>Please consider a donation to support this project."
             
         else:
             email_addr = self.request.get('string').lower()
@@ -220,7 +224,31 @@ class EmailWorker(webapp.RequestHandler):
 
 ## end EmailWorker
 
-         
+class BackgroundCountHandler(webapp.RequestHandler):
+    def get(self):
+        self.post()
+        
+    def post(self):
+        counter = 0
+        
+        q = db.GqlQuery("SELECT * FROM UserSignup LIMIT 1000")
+        offset = 0
+        result = q.fetch(1000)
+        while result:
+            counter += len(result)
+            offset += len(result)
+            result = q.fetch(1000,offset)
+            
+        counterEntity = db.GqlQuery("SELECT * FROM UserCounter").get()
+        if counterEntity is None:
+            counterEntity = UserCounter()
+            logging.info("we have no counter currently!? creating a new one...")
+        logging.info("setting the counter to %s" % counter)
+        counterEntity.userCount = counter
+        counterEntity.put()
+        self.response.out.write(counter)
+## end
+
     
 urlbase = "http://apod.nasa.gov/apod"
 url = urlbase + "/astropix.html"
@@ -308,6 +336,7 @@ application = webapp.WSGIApplication([('/', MainHandler),
                                       ('/signup', SignupHandler),
                                       ('/dailyemail', FetchHandler),
                                       ('/emailqueue', EmailWorker),
+                                      ('/usercount', BackgroundCountHandler),
                                       ('/pictureoftheday.*', TodayHandler),
                                       ],
                                      debug=True)
