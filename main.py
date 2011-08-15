@@ -59,7 +59,6 @@ class SignupHandler(webapp.RequestHandler):
         # send email to the new user
         message = mail.EmailMessage()
         message.sender='gtracy@gmail.com'
-        #message.body = "hello APOD world!"
 
         # first validate the email address
         logging.debug("Checking to see if %s is valid" % self.request.get('string'))
@@ -164,7 +163,7 @@ class SignupHandler(webapp.RequestHandler):
         self.post()
         
 ## end SignupHandler
-        
+
 class TodayHandler(webapp.RequestHandler):
     
     def get(self):
@@ -202,12 +201,13 @@ class EmailWorker(webapp.RequestHandler):
             # send email 
             apod_message = mail.EmailMessage()
             apod_message.subject = subject
-            apod_message.sender = 'gtracy@gmail.com'
+            apod_message.sender = 'apod@gregtracy.com'
             apod_message.html = body
             apod_message.to = email
             if subject.find('APOD Email') > -1:
-                apod_message.bcc = 'greg.tracy@att.net'
+                apod_message.bcc = 'gtracy@gmail.com'
             apod_message.send()
+            logging.info('regardless of what happens next, this message was sent!')
 
             # fetch the URL to simulate a user's site visit
             try:
@@ -252,7 +252,6 @@ class BackgroundCountHandler(webapp.RequestHandler):
     
 urlbase = "http://apod.nasa.gov/apod"
 url = urlbase + "/astropix.html"
-listRemove = "http://pages.cs.wisc.edu/~gtracy/astronomy/astronomy_signup.pl?signup=remove&string=87af78fa"
 myemail = 'gtracy@cs.wisc.edu'
 footerText = "<hr><p><i><strong>This is an automated email. If you notice any problems, just send me a note at <a href=mailto:gtracy@cs.wisc.edu>gtracy@cs.wisc.edu</a>. You can add and remove email addresses to this distribution list here, <a href=http://apodemail.appspot.com>http://apodemail.appspot.com</a>.</strong></i></p>"
 
@@ -308,25 +307,25 @@ def fetchAPOD(self, sendEmail):
      soup('br')[-1].insert(0,footer)
 
      parse_time = quota.get_request_cpu_usage()
-     logging.info("parsing the HTML cost %d cycles" % (parse_time - fetch_time))
+     logging.debug("parsing the HTML cost %d cycles" % (parse_time - fetch_time))
          
      template_values = { 'content':soup }
      path = os.path.join(os.path.dirname(__file__), 'cron.html')
      self.response.out.write(template.render(path, template_values))
 
      template_time = quota.get_request_cpu_usage()
-     logging.info("creating the template cost %d cycles" % (template_time - parse_time))
+     logging.debug("creating the template cost %d cycles" % (template_time - parse_time))
      query_time = 0
      if sendEmail:
          users = db.GqlQuery("SELECT * FROM UserSignup")
          query_time = quota.get_request_cpu_usage()
-         logging.info("email query cost %d cycles" % (query_time - template_time))
+         logging.debug("email query cost %d cycles" % (query_time - template_time))
          for u in users:
              task = Task(url='/emailqueue', params={'email':u.email,'subject':"Astronomy Picture Of The Day",'body':soup})
              task.add('emailqueue')
 
      task_time = quota.get_request_cpu_usage()
-     logging.info("adding tasks cost %d cycles" % (task_time - query_time))
+     logging.debug("adding tasks cost %d cycles" % (task_time - query_time))
 
             
 #
