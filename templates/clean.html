@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html>
+  <head>
+    <title>Email Signup: Astronomy Picture of the Day (APOD)</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script> 
+    <script type="text/javascript">
+      $(document).ready(function() {
+        $("#request-form").submit(function() {
+          $("#form-container").slideUp("fast");
+          var args = "string="+$('#email').val()+"&signup="+$('#addremove:checked').val()+"&reference="+$('#refNote').val()+"&comments="+$('#commentNote').val()
+          $.ajax({
+            type: "POST",
+            url: "/signup",
+            data: args,
+            success: function(response) {
+              if( response.indexOf("Oops") >= 0 ) {
+                $("#form-container").slideDown("fast");
+                $("#form-answer").replaceWith('<div id="form-answer"><p style="color: red;font-weight: bold">'+response+'</p></div>');
+              } else {
+                $("#form-answer").replaceWith('<div id="form-answer"><h2>'+response+'</h2></div><hr>');
+              }
+            } // success function
+          }); // .ajax
+        }); // submit form
+      });
+    </script>
+    
+  </head>
+
+  <body>
+
+  <ul>
+   {% for u in users %}
+   <li>{{ u.email }}</li>
+   <li>{{ u.note }}</li>
+   <li>{{ u.referral }}</li>
+ {% endfor %}
+
+  </ul>
+  
+  </body>
+</html>
