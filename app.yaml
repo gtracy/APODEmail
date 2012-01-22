@@ -1,5 +1,5 @@
 application: apodemail
-version: 4
+version: cleaner
 runtime: python
 api_version: 1
 

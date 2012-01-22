@@ -1,0 +1,40 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html>
+  <head>
+    <title>Email Signup: Astronomy Picture of the Day (APOD)</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script> 
+    <script type="text/javascript">
+      $(document).ready(function() {
+        $(".delete").click(function() {
+          $.ajax({
+            type: "POST",
+            url: "/admin/delete/user",
+            data: {'user_key':$(this).attr('name')},
+            success: function(response) {
+            } // success function
+          }); // .ajax
+        }); // click event
+      });
+    </script>
+    
+  </head>
+
+  <body>
+
+  <table>
+  
+   {% for u in users %}
+   <tr>
+    <td><input type="button" class="delete" name="{{u.key}}" value="delete"/></td>
+    <td>{{ u.email }}</td>
+    <td>{{ u.note }}</td>
+    <td>{{ u.referral }}</td>
+   </tr>
+  {% endfor %}
+
+  </table>
+  
+  </body>
+</html>

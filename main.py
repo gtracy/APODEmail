@@ -46,7 +46,7 @@ class MainHandler(webapp.RequestHandler):
       template_values = { 'counter':counter.userCount, }
       
       # generate the html
-      path = os.path.join(os.path.dirname(__file__), 'index.html')
+      path = os.path.join(os.path.dirname(__file__), 'templates/index.html')
       self.response.out.write(template.render(path, template_values))
 
 ## end MainHandler
@@ -61,7 +61,6 @@ class SignupHandler(webapp.RequestHandler):
         message.sender='gtracy@gmail.com'
 
         # first validate the email address
-        logging.debug("Checking to see if %s is valid" % self.request.get('string'))
         if not email_re.search(self.request.get('string')):
             error_msg = "This address - %s - is not a valid email address. Check the formatting." % self.request.get('string')
             logging.error(error_msg)
@@ -97,11 +96,11 @@ class SignupHandler(webapp.RequestHandler):
                 # setup the specific email parameters                        
                 message.subject="APOD Email Signup BLOCKED"
                 message.to = email_addr
-                path = os.path.join(os.path.dirname(__file__), 'invalid-email.html')
+                path = os.path.join(os.path.dirname(__file__), 'templates/invalid-email.html')
                 message.html = template.render(path,template_values)
 
                 # setup the confirmation page on the web                
-                #path = os.path.join(os.path.dirname(__file__), 'invalid.html')
+                #path = os.path.join(os.path.dirname(__file__), 'templates/invalid.html')
                 msg = "Oops. No can do. This request is getting blocked because it looks fishy."                
             else:
                 # add the user to the database!                
@@ -115,11 +114,11 @@ class SignupHandler(webapp.RequestHandler):
                 # setup the specific email parameters                        
                 message.subject="APOD Email Signup Confirmation"
                 message.to = email_addr
-                path = os.path.join(os.path.dirname(__file__), 'added-email.html')
+                path = os.path.join(os.path.dirname(__file__), 'templates/added-email.html')
                 message.html = template.render(path,template_values)
 
                 # setup the confirmation page on the web
-                #path = os.path.join(os.path.dirname(__file__), 'added.html')
+                #path = os.path.join(os.path.dirname(__file__), 'templates/added.html')
                 msg = "Excellent! You've been added to the list.<p>Please consider a donation to support this project."
             
         else:
@@ -138,7 +137,7 @@ class SignupHandler(webapp.RequestHandler):
                                     'referral':self.request.get('reference'),
                                     'notes':self.request.get('comments'),
                                  }
-                path = os.path.join(os.path.dirname(__file__), 'removed-email.html')
+                path = os.path.join(os.path.dirname(__file__), 'templates/removed-email.html')
                 message.html = template.render(path,template_values)
     
                 # ... and show the thank you confirmation page
@@ -180,8 +179,6 @@ class FetchHandler(webapp.RequestHandler):
     def get(self):
 
          user = users.get_current_user()
-         logging.debug("started FetchHandler with user, %s", user)
-         logging.debug("header: %s", self.request.headers)
          if user or self.request.headers['X-AppEngine-Cron']:
              fetchAPOD(self, True)
          else:
@@ -196,7 +193,6 @@ class EmailWorker(webapp.RequestHandler):
             email = self.request.get('email')
             body = self.request.get('body')
             subject = self.request.get('subject')
-            logging.debug("email task running for %s", email)
         
             # send email 
             apod_message = mail.EmailMessage()
@@ -207,7 +203,6 @@ class EmailWorker(webapp.RequestHandler):
             if subject.find('APOD Email') > -1:
                 apod_message.bcc = 'gtracy@gmail.com'
             apod_message.send()
-            logging.info('regardless of what happens next, this message was sent!')
 
             # fetch the URL to simulate a user's site visit
             try:
@@ -250,6 +245,47 @@ class BackgroundCountHandler(webapp.RequestHandler):
 ## end
 
     
+class CleanEmailsHandler(webapp.RequestHandler):
+  def get(self):
+      numbers = re.compile('[0-9]')
+
+      user_list = []
+      users = db.GqlQuery("SELECT * FROM UserSignup order by date desc limit 300")
+      for u in users:
+          if numbers.findall(u.email):
+              user_list.append({'key':u.key(),
+                                'email':u.email,
+                                'note':u.notes,
+                                'referral':u.referral,
+                                })
+          elif u.notes is not None:
+              user_list.append({'key':u.key(),
+                                'email':u.email,
+                                'note':u.notes,
+                                'referral':u.referral,
+                                })
+              
+      # add the counter to the template values
+      template_values = { 'users':user_list, }
+      
+      # generate the html
+      path = os.path.join(os.path.dirname(__file__), 'templates/cleaner.html')
+      self.response.out.write(template.render(path, template_values))
+
+## end MainHandler
+
+class DeleteUserHandler(webapp.RequestHandler):
+    def post(self):
+        user_key = self.request.get("user_key")
+        user = db.get(user_key)
+        if user is None:
+            logging.error('trying to delete user ID %s and FAILED' % user_key)
+        else:
+            logging.debug('trying to delete user %s and SUCCEEDED' % user_key)
+            user.delete()
+## end
+
+
 urlbase = "http://apod.nasa.gov/apod"
 url = urlbase + "/astropix.html"
 myemail = 'gtracy@cs.wisc.edu'
@@ -276,14 +312,12 @@ def fetchAPOD(self, sendEmail):
            time.sleep(6)
            loop = loop+1
            
-     fetch_time = quota.get_request_cpu_usage()
-     logging.info("fetching the URL cost %d cycles" % (fetch_time-start))
-        
      if result is None or result.status_code != 200:
          logging.error("Exiting early: error fetching URL: " + result.status_code)
          return 
      
      soup = BeautifulSoup(result.content)
+     logging.debug(soup)
      
      # fix all of the relative links
      for a in soup.html.body.findAll('a'):
@@ -306,26 +340,16 @@ def fetchAPOD(self, sendEmail):
      footer.insert(0,footerText)
      soup('br')[-1].insert(0,footer)
 
-     parse_time = quota.get_request_cpu_usage()
-     logging.debug("parsing the HTML cost %d cycles" % (parse_time - fetch_time))
-         
      template_values = { 'content':soup }
-     path = os.path.join(os.path.dirname(__file__), 'cron.html')
+     path = os.path.join(os.path.dirname(__file__), 'templates/cron.html')
      self.response.out.write(template.render(path, template_values))
 
-     template_time = quota.get_request_cpu_usage()
-     logging.debug("creating the template cost %d cycles" % (template_time - parse_time))
      query_time = 0
      if sendEmail:
          users = db.GqlQuery("SELECT * FROM UserSignup")
-         query_time = quota.get_request_cpu_usage()
-         logging.debug("email query cost %d cycles" % (query_time - template_time))
          for u in users:
              task = Task(url='/emailqueue', params={'email':u.email,'subject':"Astronomy Picture Of The Day",'body':soup})
              task.add('emailqueue')
-
-     task_time = quota.get_request_cpu_usage()
-     logging.debug("adding tasks cost %d cycles" % (task_time - query_time))
 
             
 #
@@ -337,11 +361,13 @@ application = webapp.WSGIApplication([('/', MainHandler),
                                       ('/emailqueue', EmailWorker),
                                       ('/usercount', BackgroundCountHandler),
                                       ('/pictureoftheday.*', TodayHandler),
+                                      ('/admin/clean', CleanEmailsHandler),
+                                      ('/admin/delete/user', DeleteUserHandler),
                                       ],
                                      debug=True)
 
 def main():
-  logging.getLogger().setLevel(logging.INFO)
+  logging.getLogger().setLevel(logging.DEBUG)
   run_wsgi_app(application)
 
 if __name__ == '__main__':
