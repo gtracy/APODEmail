@@ -13,7 +13,8 @@
     <script type="text/javascript">
       $(document).ready(function() {
         $("#request-form").submit(function() {
-          if($('#refNote').val().toLowerCase() !== 'yellow' &&
+          if($('#addremove:checked').val() === 'signup' &&
+             $('#refNote').val().toLowerCase() !== 'yellow' &&
              $('#refNote').val().toLowerCase() !== 'orange' ) {
               $("#form-answer").replaceWith('<div id="form-answer"><h2>Wrong answer. Try again?</h2></div>');
           } else {
