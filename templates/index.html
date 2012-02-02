@@ -13,21 +13,26 @@
     <script type="text/javascript">
       $(document).ready(function() {
         $("#request-form").submit(function() {
-          $("#form-container").slideUp("fast");
-          var args = "string="+$('#email').val()+"&signup="+$('#addremove:checked').val()+"&reference="+$('#refNote').val()+"&comments="+$('#commentNote').val()
-          $.ajax({
-            type: "POST",
-            url: "/signup",
-            data: args,
-            success: function(response) {
-              if( response.indexOf("Oops") >= 0 ) {
-                $("#form-container").slideDown("fast");
-                $("#form-answer").replaceWith('<div id="form-answer"><p style="color: red;font-weight: bold">'+response+'</p></div>');
-              } else {
-                $("#form-answer").replaceWith('<div id="form-answer"><h2>'+response+'</h2></div><hr>');
-              }
-            } // success function
-          }); // .ajax
+          if($('#refNote').val().toLowerCase() !== 'yellow' &&
+             $('#refNote').val().toLowerCase() !== 'orange' ) {
+              $("#form-answer").replaceWith('<div id="form-answer"><h2>Wrong answer. Try again?</h2></div>');
+          } else {
+              $("#form-container").slideUp("fast");
+              var args = "string="+$('#email').val()+"&signup="+$('#addremove:checked').val()+"&reference="+$('#refNote').val()+"&comments="+$('#commentNote').val()
+              $.ajax({
+                type: "POST",
+                url: "/signup",
+                data: args,
+                success: function(response) {
+                  if( response.indexOf("Oops") >= 0 ) {
+                    $("#form-container").slideDown("fast");
+                    $("#form-answer").replaceWith('<div id="form-answer"><p style="color: red;font-weight: bold">'+response+'</p></div>');
+                  } else {
+                    $("#form-answer").replaceWith('<div id="form-answer"><h2>'+response+'</h2></div><hr>');
+                  }
+                } // success function
+              }); // .ajax
+          }
         }); // submit form
       });
     </script>
@@ -53,11 +58,11 @@
 </script>
 
 <div id="header">
-  <h1>
+  <h2>
   <a href=http://apod.nasa.gov/apod/>APOD</a> - 
   <a href=http://www.nasa.gov/>NASA</a> -
   <a href=http://gregtracy.com/>GREG</a>
-  </h1>
+  </h2>
 </div>
 
 <div id="content">
@@ -92,10 +97,9 @@ Please comply with all copyright notices.</p>
       Your email address:
       <input id="email" type=text size=30 name="string">
       <input id="addremove" type=radio name="signup" value=signup checked>Signup
-      <input id="addremove" type=radio name="signup" value=remove>Remove<br><p>
-      I <strong><i>strongly</i></strong> recommend that you leave a personal note below. Otherwise, you 
-      may be flagged as spam and ignored.<p>
-      How did you hear about this? <p> <input id="refNote" type=text size=80 name="reference"><br><p>
+      <input id="addremove" type=radio name="signup" value=remove>Remove<br>
+      <p style="color: red;">You must answer the following question correctly to avoid the spam filter...</p>
+      What color is the donate button in the right column? <p> <input id="refNote" type=text size=80 name="reference"><br><p>
       Share more thoughts <p> <input id="commentNote" type=text size=80 name="comments"><br>
       <p><input type=submit value=Submit> <input type=reset>
     </form>
@@ -105,6 +109,8 @@ Please comply with all copyright notices.</p>
 
  </div>
  <div id="social-container">
+ <a href="https://twitter.com/GregTracy" class="twitter-follow-button" data-show-count="false">Follow @GregTracy</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
   <h2>Tell a friend!</h2>
   
   <div>
