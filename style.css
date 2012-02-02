@@ -24,7 +24,7 @@ a: visited {
 
 #page-container {
   background-color: #264965;
-  width: 800px;
+  width: 900px;
   margin: 0 auto;
 }
 
@@ -41,7 +41,7 @@ a: visited {
   hover: #264965;
 }
 
-#header h1 {
+#header h2 {
   font-family: Georgia, Times, serif;
   font-size: 18px;
   margin: 0;
