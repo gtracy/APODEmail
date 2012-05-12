@@ -2,3 +2,8 @@ queue:
 - name: emailqueue
   rate: 8/m
   bucket_size: 1
+
+- name: fetchqueue
+  rate: 50/s
+  bucket_size: 1
+  

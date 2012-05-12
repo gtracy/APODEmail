@@ -26,6 +26,8 @@ from google.appengine.runtime import apiproxy_errors
 from BeautifulSoup import BeautifulSoup, Tag
 from django.core.validators import email_re
 
+import config
+
 class UserSignup(db.Model):
   email = db.StringProperty()
   referral = db.StringProperty(multiline=True)
@@ -43,7 +45,11 @@ class MainHandler(webapp.RequestHandler):
       counter = db.GqlQuery("SELECT * FROM UserCounter").get()
             
       # add the counter to the template values
-      template_values = { 'counter':counter.userCount, }
+      if counter is None:
+          userCount = 0
+      else:
+          userCount = counter.userCount
+      template_values = { 'counter':userCount, }
       
       # generate the html
       path = os.path.join(os.path.dirname(__file__), 'templates/index.html')
@@ -219,6 +225,17 @@ class EmailWorker(webapp.RequestHandler):
 
 ## end EmailWorker
 
+class APODFetchHandler(webapp.RequestHandler):
+    def post(self):
+        # fetch the URL to simulate a user's site visit
+        try:
+            result = urlfetch.fetch(urlbase)
+        except urlfetch.DownloadError:
+            logging.error("APODFetchHandler :: DownloadError while fetching the APOD page")
+            return
+        
+## end APODFetchHandler
+
 class BackgroundCountHandler(webapp.RequestHandler):
     def get(self):
         self.post()
@@ -250,7 +267,7 @@ class CleanEmailsHandler(webapp.RequestHandler):
       numbers = re.compile('[0-9]')
 
       user_list = []
-      users = db.GqlQuery("SELECT * FROM UserSignup order by date desc limit 300")
+      users = db.GqlQuery("SELECT * FROM UserSignup order by date desc")
       for u in users:
           if numbers.findall(u.email):
               user_list.append({'key':u.key(),
@@ -273,6 +290,33 @@ class CleanEmailsHandler(webapp.RequestHandler):
       self.response.out.write(template.render(path, template_values))
 
 ## end MainHandler
+
+class GetEmailsHandler(webapp.RequestHandler):
+    def get(self):
+        key = self.request.get('key')
+        if key != config.API_SECRET:
+            logging.error('ILLEGAL email request -----> key is: %s' % key)
+            self.response.set_status(401)
+            self.response.out.write('illegal access')
+        else:
+            users = db.GqlQuery("SELECT * FROM UserSignup")
+            if users is None:
+                self.response.out.write('empty')
+            else:
+                emails = ''
+                for u in users:
+                    emails += '%s,' % u.email
+                    
+                    # here's something goofy... we're going to spawn a task 
+                    # to fetch the APOD site content for each user. we do 
+                    # this because the APOD authors ask that we maintain 
+                    # traffic levels on the site for users on the distribution list
+                    task = Task(url='/fetchqueue')
+                    task.add('fetchqueue')
+                    
+                self.response.out.write(emails.rstrip(','))  # strip off trailing comma
+
+## end GetEmailsHandler
 
 class DeleteUserHandler(webapp.RequestHandler):
     def post(self):
@@ -359,7 +403,9 @@ application = webapp.WSGIApplication([('/', MainHandler),
                                       ('/signup', SignupHandler),
                                       ('/dailyemail', FetchHandler),
                                       ('/emailqueue', EmailWorker),
+                                      ('/fetchqueue', APODFetchHandler),
                                       ('/usercount', BackgroundCountHandler),
+                                      ('/api/emails', GetEmailsHandler),
                                       ('/pictureoftheday.*', TodayHandler),
                                       ('/admin/clean', CleanEmailsHandler),
                                       ('/admin/delete/user', DeleteUserHandler),
