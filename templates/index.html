@@ -13,11 +13,6 @@
     <script type="text/javascript">
       $(document).ready(function() {
         $("#request-form").submit(function() {
-          if($('#addremove:checked').val() === 'signup' &&
-             $('#refNote').val().toLowerCase() !== 'yellow' &&
-             $('#refNote').val().toLowerCase() !== 'orange' ) {
-              $("#form-answer").replaceWith('<div id="form-answer"><h2>Wrong answer. Try again?</h2></div>');
-          } else {
               $("#form-container").slideUp("fast");
               var args = "string="+$('#email').val()+"&signup="+$('#addremove:checked').val()+"&reference="+$('#refNote').val()+"&comments="+$('#commentNote').val()
               $.ajax({
@@ -33,7 +28,6 @@
                   }
                 } // success function
               }); // .ajax
-          }
         }); // submit form
       });
     </script>
@@ -44,20 +38,6 @@
 
   
 <div id="page-container">
-<div id="fb-root"></div>
-<script>
-  window.fbAsyncInit = function() {
-    FB.init({appId: '100152036696886', status: true, cookie: true,
-             xfbml: true});
-  };
-  (function() {
-    var e = document.createElement('script'); e.async = true;
-    e.src = document.location.protocol +
-      '//connect.facebook.net/en_US/all.js';
-    document.getElementById('fb-root').appendChild(e);
-  }());
-</script>
-
 <div id="header">
   <h2>
   <a href=http://apod.nasa.gov/apod/>APOD</a> - 
@@ -98,43 +78,31 @@ Please comply with all copyright notices.</p>
       Your email address:
       <input id="email" type=text size=30 name="string">
       <input id="addremove" type=radio name="signup" value=signup checked>Signup
-      <input id="addremove" type=radio name="signup" value=remove>Remove<br>
-      <p style="color: red;">You must answer the following question correctly to avoid the spam filter...</p>
-      What color is the donate button in the right column? <p> <input id="refNote" type=text size=80 name="reference"><br><p>
-      Share more thoughts <p> <input id="commentNote" type=text size=80 name="comments"><br>
-      <p><input type=submit value=Submit> <input type=reset>
+      <input id="addremove" type=radio name="signup" value=remove>Remove
+      </br>
+      <p>Any personal notes or feedback? <p> <input id="commentNote" type=text size=80 name="comments"></p>
+
+      <script type="text/javascript"
+         src="http://www.google.com/recaptcha/api/challenge?k=6LcngdwSAAAAAMZN2D3I0MbpxV-vkbBJ2gakCeEp">
+      </script>
+      <noscript>
+         <iframe src="http://www.google.com/recaptcha/api/noscript?k=6LcngdwSAAAAAMZN2D3I0MbpxV-vkbBJ2gakCeEp"
+             height="300" width="500" frameborder="0"></iframe><br>
+         <textarea name="recaptcha_challenge_field" rows="3" cols="40">
+         </textarea>
+         <input type="hidden" name="recaptcha_response_field"
+             value="manual_challenge">
+      </noscript>
+
+      <p><input style="font-size:48px;" type="submit" value="Submit"></p>
+
     </form>
 </div>
-  <fb:like href="http://apodemail.appspot.com" layout="button_count" show-faces="true" width="700" action="like" colorscheme="light" />
-
 
  </div>
  <div id="social-container">
  <a href="https://twitter.com/GregTracy" class="twitter-follow-button" data-show-count="false">Follow @GregTracy</a>
-<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
-  <h2>Tell a friend!</h2>
-  
-  <div>
-   <g:plusone></g:plusone><p/>
-  </div>
-
-  <div class="addthis_toolbox addthis_default_style">
-   <a class="addthis_button_email"></a>
-  </div>
-  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pub=xa-4ae9329d4251a5cf"></script>
-  
-  <p>
-  <a name="fb_share" type="button_count" share_url="http://pages.cs.wisc.edu/~gtracy/astronomy/signup.htm"></a>
-  <script src="http://static.ak.fbcdn.net/connect.php/js/FB.Share" type="text/javascript"></script>
-  <p>
-  <script type="text/javascript"> 
-  tweetmeme_style='compact';
-  tweetmeme_source='gregtracy';
-  </script>
-  <a href="https://twitter.com/share" class="twitter-share-button" data-via="GregTracy">Tweet</a>
-  <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>  
-  <p>
-  <script src="http://www.stumbleupon.com/hostedbadge.php"></script>
+ <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
   
    <h2>Support me!</h2>
    Please consider a donation to help cover our costs.<br><br>
@@ -157,10 +125,6 @@ Please comply with all copyright notices.</p>
 </div>
 
 <script type="text/javascript" src="http://apis.google.com/js/plusone.js"></script>
-
-<!-- Created: Fri Nov 16 10:35:19 CST 2001 -->
-<!-- hhmts start -->
-<!-- hhmts end -->
 
 <script type="text/javascript">
 var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
