@@ -1,5 +1,5 @@
 cron:
 - description: tally the user count
   url: /usercount
-  schedule: every 3 hours
+  schedule: every 48 hours
   
