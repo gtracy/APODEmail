@@ -269,18 +269,12 @@ class CleanEmailsHandler(webapp.RequestHandler):
       user_list = []
       users = db.GqlQuery("SELECT * FROM UserSignup order by date desc")
       for u in users:
-          if numbers.findall(u.email):
-              user_list.append({'key':u.key(),
-                                'email':u.email,
-                                'note':u.notes,
-                                'referral':u.referral,
-                                })
-          elif u.notes is not None:
-              user_list.append({'key':u.key(),
-                                'email':u.email,
-                                'note':u.notes,
-                                'referral':u.referral,
-                                })
+          user_list.append({'key':u.key(),
+                            'email':u.email,
+                            'note':u.notes,
+                            'referral':u.referral,
+                            'date':u.date
+                            })
               
       # add the counter to the template values
       template_values = { 'users':user_list, }
@@ -311,8 +305,8 @@ class GetEmailsHandler(webapp.RequestHandler):
                     # to fetch the APOD site content for each user. we do 
                     # this because the APOD authors ask that we maintain 
                     # traffic levels on the site for users on the distribution list
-                    task = Task(url='/fetchqueue')
-                    task.add('fetchqueue')
+                    #task = Task(url='/fetchqueue')
+                    #task.add('fetchqueue')
                     
                 self.response.out.write(emails.rstrip(','))  # strip off trailing comma
 

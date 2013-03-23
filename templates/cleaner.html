@@ -28,6 +28,7 @@
    {% for u in users %}
    <tr>
     <td><input type="button" class="delete" name="{{u.key}}" value="delete"/></td>
+    <td>{{ u.date }}</td>
     <td>{{ u.email }}</td>
     <td>{{ u.note }}</td>
     <td>{{ u.referral }}</td>
