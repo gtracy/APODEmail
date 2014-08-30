@@ -1,48 +1,40 @@
 application: apodemail
-version: emailapi
-runtime: python
+version: sendgrid
+runtime: python27
 api_version: 1
+threadsafe: true
 
 derived_file_type:
 - python_precompiled
 
+libraries:
+- name: django
+  version: latest
+
 handlers:
 - url: /dailyemail
-  script: main.py
+  script: main.app
   login: admin
 
 - url: /usercount
-  script: main.py
+  script: main.app
   login: admin
 
 - url: /email-queue
-  script: main.py
+  script: main.app
   login: admin
-  
-- url: /signup
-  script: main.py
 
-- url: /ajax-submit
-  script: main.py
-  
 - url: /favicon.ico
-  static_files: favicon.ico
-  upload: favicon.ico
+  static_files: img/favicon.ico
+  upload: img/favicon.ico
 
-- url: /pictureoftheday.*
-  script: main.py
-  
-- url: /remote_api
-  script: $PYTHON_LIB/google/appengine/ext/remote_api/handler.py
-  login: admin
-    
 - url: /robots.txt
   static_files: robots.txt
   upload: robots.txt
-  
-- url: /style.css
-  static_files: style.css
-  upload: style.css
+
+- url: /public/style.css
+  static_files: public/style.css
+  upload: public/style.css
 
 - url: /.*
-  script: main.py
+  script: main.app

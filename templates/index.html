@@ -7,9 +7,9 @@
     <meta name="description" content="A service that delivers a daily email containing the astronomy picture of the day.">
     <meta name="keywords" content="APOD, astronomy, astronomy picture of the day, NASA, NASA pictures, pictures of space, pictures of the universe, email distribution, email signup, signup, space, daily email">
     <meta name="google-site-verification" content="zwcKFrENLWd4sGLD_7psmaPACHF0oM_hlxUHrAlIgjQ" />
-    <link rel="stylesheet" href="style.css">
-    
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script> 
+    <link rel="stylesheet" href="public/style.css">
+
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
     <script type="text/javascript">
       $(document).ready(function() {
         $("#request-form").submit(function() {
@@ -31,16 +31,16 @@
         }); // submit form
       });
     </script>
-    
+
   </head>
 
   <body>
 
-  
+
 <div id="page-container">
 <div id="header">
   <h2>
-  <a href=http://apod.nasa.gov/apod/>APOD</a> - 
+  <a href=http://apod.nasa.gov/apod/>APOD</a> -
   <a href=http://www.nasa.gov/>NASA</a> -
   <a href=http://gregtracy.com/>GREG</a>
   </h2>
@@ -54,18 +54,18 @@
 <div id="instruction-container">
  <div id="instructions">
 Get <a href=http://apod.nasa.gov/apod/>APOD</a> in your email inbox each day!</p>
-<p>This project was originally started for my father when I was in grad school. He 
-wanted a more efficient way of viewing <a href="http://apod.nasa.gov/apod/">NASA's APOD site</a> 
-every day. Since, at the time, RSS had not really taken off, I wrote a little script 
+<p>This project was originally started for my father when I was in grad school. He
+wanted a more efficient way of viewing <a href="http://apod.nasa.gov/apod/">NASA's APOD site</a>
+every day. Since, at the time, RSS had not really taken off, I wrote a little script
 that scraped the APOD page and packaged it in a nice little email for him.</p>
-<p>Now it's been nine plus years and there are <strong>{{ counter }}</strong> people on the distribution 
+<p>Now it's been nine plus years and there are <strong>{{ counter }}</strong> people on the distribution
 list. Who knew!? </p>
-<p>If you'd like to be added to the email distribution list, please fill out the 
-form below and click the submit button. If you'd like to see a sample email (today's), 
+<p>If you'd like to be added to the email distribution list, please fill out the
+form below and click the submit button. If you'd like to see a sample email (today's),
 check it out <a href="pictureoftheday.html">here</a>.</p>
-<p>The APOD pictures are brought to you by 
-<a href=http://antwrp.gsfc.nasa.gov/htmltest/rjn.html>Robert Nemiroff</a> and 
-<a href=http://antwrp.gsfc.nasa.gov/htmltest/jbonnell/www/bonnell.html>Jerry Bonnell</a>. 
+<p>The APOD pictures are brought to you by
+<a href=http://antwrp.gsfc.nasa.gov/htmltest/rjn.html>Robert Nemiroff</a> and
+<a href=http://antwrp.gsfc.nasa.gov/htmltest/jbonnell/www/bonnell.html>Jerry Bonnell</a>.
 Please comply with all copyright notices.</p>
 
 <hr>
@@ -103,7 +103,7 @@ Please comply with all copyright notices.</p>
  <div id="social-container">
  <a href="https://twitter.com/GregTracy" class="twitter-follow-button" data-show-count="false">Follow @GregTracy</a>
  <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
-  
+
    <h2>Support me!</h2>
    Please consider a donation to help cover our costs.<br><br>
    <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
@@ -112,16 +112,16 @@ Please comply with all copyright notices.</p>
    <input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
    <img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
    </form>
-   
+
   </div>
-  
+
 </div>
 <div id="spacer"> </div>
 </div>
 
 <div id="footer">
   <a href="mailto:gtracy@cs.wisc.edu">help</a>
-  
+
 </div>
 
 <script type="text/javascript" src="http://apis.google.com/js/plusone.js"></script>

@@ -1,4 +1,4 @@
-import cgi
+import webapp2
 import os
 import urllib2
 import re
@@ -15,7 +15,6 @@ from google.appengine.api.labs.taskqueue import Task
 from google.appengine.api.urlfetch import DownloadError
 from google.appengine.api.mail import InvalidEmailError
 
-from google.appengine.ext import webapp
 from google.appengine.ext import db
 
 from google.appengine.ext.webapp import template
@@ -36,28 +35,28 @@ class UserSignup(db.Model):
 
 class UserCounter(db.Model):
     userCount = db.IntegerProperty()
-    
-    
-class MainHandler(webapp.RequestHandler):
+
+
+class MainHandler(webapp2.RequestHandler):
   def get(self):
-      
+
       # figure out how many people are currently on the distribution list
       counter = db.GqlQuery("SELECT * FROM UserCounter").get()
-            
+
       # add the counter to the template values
       if counter is None:
           userCount = 0
       else:
           userCount = counter.userCount
       template_values = { 'counter':userCount, }
-      
+
       # generate the html
       path = os.path.join(os.path.dirname(__file__), 'templates/index.html')
       self.response.out.write(template.render(path, template_values))
 
 ## end MainHandler
-        
-class SignupHandler(webapp.RequestHandler):
+
+class SignupHandler(webapp2.RequestHandler):
     def post(self):
         logging.info("New signup request...\n\tEmail: %s\n\tAdd/Remove: %s\n\tReference: %s\n\tNotes: %s",
                      self.request.get('string'), self.request.get('signup'), self.request.get('reference'), self.request.get('comments'))
@@ -72,8 +71,8 @@ class SignupHandler(webapp.RequestHandler):
             logging.error(error_msg)
             self.response.out.write("Oops. The email address was malformed! Please try again.")
             return
-                
-        blocked = False        
+
+        blocked = False
         # determine if this is a signup or remove request
         if self.request.get('signup') == 'signup':
             email_addr = self.request.get('string').lower()
@@ -86,38 +85,38 @@ class SignupHandler(webapp.RequestHandler):
               logging.error(error_msg)
               self.response.out.write("Oops. It looks like this email address is already on the list.")
               return
-            
+
             # if signing up, create a new user and add it to the store
             userSignup = UserSignup()
             userSignup.email = email_addr
             userSignup.referral = self.request.get('reference')
             userSignup.notes = self.request.get('comments')
-            
+
             # filter out requests if there is a URL in the comments field
             if re.search("http",userSignup.referral) or re.search("http",userSignup.notes):
                 error_msg = "Request to add - %s - has been BLOCKED because of illegal text in the comments field." % email_addr
                 logging.error(error_msg)
                 template_values = {'error':error_msg}
 
-                # setup the specific email parameters                        
+                # setup the specific email parameters
                 message.subject="APOD Email Signup BLOCKED"
                 message.to = email_addr
                 path = os.path.join(os.path.dirname(__file__), 'templates/invalid-email.html')
                 message.html = template.render(path,template_values)
 
-                # setup the confirmation page on the web                
+                # setup the confirmation page on the web
                 #path = os.path.join(os.path.dirname(__file__), 'templates/invalid.html')
-                msg = "Oops. No can do. This request is getting blocked because it looks fishy."                
+                msg = "Oops. No can do. This request is getting blocked because it looks fishy."
             else:
-                # add the user to the database!                
+                # add the user to the database!
                 userSignup.put()
 
-                template_values = {'email':userSignup.email, 
+                template_values = {'email':userSignup.email,
                                    'referral':userSignup.referral,
                                    'notes':userSignup.notes,
                                    }
 
-                # setup the specific email parameters                        
+                # setup the specific email parameters
                 message.subject="APOD Email Signup Confirmation"
                 message.to = email_addr
                 path = os.path.join(os.path.dirname(__file__), 'templates/added-email.html')
@@ -126,7 +125,7 @@ class SignupHandler(webapp.RequestHandler):
                 # setup the confirmation page on the web
                 #path = os.path.join(os.path.dirname(__file__), 'templates/added.html')
                 msg = "Excellent! You've been added to the list.<p>Please consider a donation to support this project."
-            
+
         else:
             email_addr = self.request.get('string').lower()
             # if removing a user, first check to see that the request is valid
@@ -136,16 +135,16 @@ class SignupHandler(webapp.RequestHandler):
                 # if the user was found, remove them
                 db.delete(remove_entry)
 
-                # setup the specific email parameters                        
+                # setup the specific email parameters
                 message.subject="APOD Email Removal Request"
                 message.to = self.request.get('string')
-                template_values = { 'email':email_addr, 
+                template_values = { 'email':email_addr,
                                     'referral':self.request.get('reference'),
                                     'notes':self.request.get('comments'),
                                  }
                 path = os.path.join(os.path.dirname(__file__), 'templates/removed-email.html')
                 message.html = template.render(path,template_values)
-    
+
                 # ... and show the thank you confirmation page
                 msg = "You've been removed from the list... Thanks!"
             else:
@@ -166,22 +165,22 @@ class SignupHandler(webapp.RequestHandler):
 
     def get(self):
         self.post()
-        
+
 ## end SignupHandler
 
-class TodayHandler(webapp.RequestHandler):
-    
+class TodayHandler(webapp2.RequestHandler):
+
     def get(self):
          fetchAPOD(self, False)
 
     def post(self):
         fetchAPOD(self, False)
-        
+
 ## end TodayHandler
 
-        
-class FetchHandler(webapp.RequestHandler):
-    
+
+class FetchHandler(webapp2.RequestHandler):
+
     def get(self):
 
          user = users.get_current_user()
@@ -191,16 +190,16 @@ class FetchHandler(webapp.RequestHandler):
              logging.error("failed to find a user! Baling out...")
 
 ## end FetchHandler
-         
-class EmailWorker(webapp.RequestHandler):
+
+class EmailWorker(webapp2.RequestHandler):
     def post(self):
-        
+
         try:
             email = self.request.get('email')
             body = self.request.get('body')
             subject = self.request.get('subject')
-        
-            # send email 
+
+            # send email
             apod_message = mail.EmailMessage()
             apod_message.subject = subject
             apod_message.sender = 'apod@gregtracy.com'
@@ -225,7 +224,7 @@ class EmailWorker(webapp.RequestHandler):
 
 ## end EmailWorker
 
-class APODFetchHandler(webapp.RequestHandler):
+class APODFetchHandler(webapp2.RequestHandler):
     def post(self):
         # fetch the URL to simulate a user's site visit
         try:
@@ -233,16 +232,16 @@ class APODFetchHandler(webapp.RequestHandler):
         except urlfetch.DownloadError:
             logging.error("APODFetchHandler :: DownloadError while fetching the APOD page")
             return
-        
+
 ## end APODFetchHandler
 
-class BackgroundCountHandler(webapp.RequestHandler):
+class BackgroundCountHandler(webapp2.RequestHandler):
     def get(self):
         self.post()
-        
+
     def post(self):
         counter = 0
-        
+
         q = db.GqlQuery("SELECT * FROM UserSignup LIMIT 1000")
         offset = 0
         result = q.fetch(1000)
@@ -250,7 +249,7 @@ class BackgroundCountHandler(webapp.RequestHandler):
             counter += len(result)
             offset += len(result)
             result = q.fetch(1000,offset)
-            
+
         counterEntity = db.GqlQuery("SELECT * FROM UserCounter").get()
         if counterEntity is None:
             counterEntity = UserCounter()
@@ -261,8 +260,8 @@ class BackgroundCountHandler(webapp.RequestHandler):
         self.response.out.write(counter)
 ## end
 
-    
-class CleanEmailsHandler(webapp.RequestHandler):
+
+class CleanEmailsHandler(webapp2.RequestHandler):
   def get(self):
       numbers = re.compile('[0-9]')
 
@@ -275,17 +274,17 @@ class CleanEmailsHandler(webapp.RequestHandler):
                             'referral':u.referral,
                             'date':u.date
                             })
-              
+
       # add the counter to the template values
       template_values = { 'users':user_list, }
-      
+
       # generate the html
       path = os.path.join(os.path.dirname(__file__), 'templates/cleaner.html')
       self.response.out.write(template.render(path, template_values))
 
 ## end MainHandler
 
-class GetEmailsHandler(webapp.RequestHandler):
+class GetEmailsHandler(webapp2.RequestHandler):
     def get(self):
         key = self.request.get('key')
         if key != config.API_SECRET:
@@ -300,19 +299,19 @@ class GetEmailsHandler(webapp.RequestHandler):
                 emails = ''
                 for u in users:
                     emails += '%s,' % u.email
-                    
-                    # here's something goofy... we're going to spawn a task 
-                    # to fetch the APOD site content for each user. we do 
-                    # this because the APOD authors ask that we maintain 
+
+                    # here's something goofy... we're going to spawn a task
+                    # to fetch the APOD site content for each user. we do
+                    # this because the APOD authors ask that we maintain
                     # traffic levels on the site for users on the distribution list
                     #task = Task(url='/fetchqueue')
                     #task.add('fetchqueue')
-                    
+
                 self.response.out.write(emails.rstrip(','))  # strip off trailing comma
 
 ## end GetEmailsHandler
 
-class DeleteUserHandler(webapp.RequestHandler):
+class DeleteUserHandler(webapp2.RequestHandler):
     def post(self):
         user_key = self.request.get("user_key")
         user = db.get(user_key)
@@ -330,7 +329,7 @@ myemail = 'gtracy@cs.wisc.edu'
 footerText = "<hr><p><i><strong>This is an automated email. If you notice any problems, just send me a note at <a href=mailto:gtracy@cs.wisc.edu>gtracy@cs.wisc.edu</a>. You can add and remove email addresses to this distribution list here, <a href=http://apodemail.appspot.com>http://apodemail.appspot.com</a>.</strong></i></p>"
 
 def fetchAPOD(self, sendEmail):
-    
+
      logging.debug("fetching the APOD site...")
      start = quota.get_request_cpu_usage()
 
@@ -349,31 +348,31 @@ def fetchAPOD(self, sendEmail):
                logging.debug("Error content: %s" % result.content)
            time.sleep(6)
            loop = loop+1
-           
+
      if result is None or result.status_code != 200:
          logging.error("Exiting early: error fetching URL: " + result.status_code)
-         return 
-     
+         return
+
      soup = BeautifulSoup(result.content)
      logging.debug(soup)
-     
+
      # fix all of the relative links
      for a in soup.html.body.findAll('a'):
          if a['href'].find("http") < 0:
              fullurl = "%s/%s" % (urlbase,a['href'])
              a['href'] = a['href'].replace(a['href'],fullurl)
-     
-     # fix all of the relative image source references       
+
+     # fix all of the relative image source references
      for i in soup.html.body.findAll('img'):
          if i['src'].find("http") < 0:
              fullurl = "%s/%s" % (urlbase,i['src'])
              i['src'] = i['src'].replace(i['src'],fullurl)
-     
+
      # soup pulled out the center tag at the end for some reason
      # so add it back in
      first, second = soup.findAll('hr')
      first.insert(0,"<center>")
-     
+
      footer = Tag(soup, "p")
      footer.insert(0,footerText)
      soup('br')[-1].insert(0,footer)
@@ -389,11 +388,11 @@ def fetchAPOD(self, sendEmail):
              task = Task(url='/emailqueue', params={'email':u.email,'subject':"Astronomy Picture Of The Day",'body':soup})
              task.add('emailqueue')
 
-            
+
 #
 # Create the WSGI application instance for the APOD signup
 #
-application = webapp.WSGIApplication([('/', MainHandler),
+app = webapp2.WSGIApplication([('/', MainHandler),
                                       ('/signup', SignupHandler),
                                       ('/dailyemail', FetchHandler),
                                       ('/emailqueue', EmailWorker),
@@ -405,10 +404,3 @@ application = webapp.WSGIApplication([('/', MainHandler),
                                       ('/admin/delete/user', DeleteUserHandler),
                                       ],
                                      debug=True)
-
-def main():
-  logging.getLogger().setLevel(logging.DEBUG)
-  run_wsgi_app(application)
-
-if __name__ == '__main__':
-  main()
