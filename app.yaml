@@ -36,5 +36,8 @@ handlers:
   static_files: public/style.css
   upload: public/style.css
 
+- url: /signup
+  script: signup.app
+
 - url: /.*
   script: main.app

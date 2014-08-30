@@ -26,16 +26,7 @@ from BeautifulSoup import BeautifulSoup, Tag
 from django.core.validators import email_re
 
 import config
-
-class UserSignup(db.Model):
-  email = db.StringProperty()
-  referral = db.StringProperty(multiline=True)
-  notes = db.StringProperty(multiline=True)
-  date = db.DateTimeProperty(auto_now_add=True)
-
-class UserCounter(db.Model):
-    userCount = db.IntegerProperty()
-
+import data_model
 
 class MainHandler(webapp2.RequestHandler):
   def get(self):
@@ -48,125 +39,13 @@ class MainHandler(webapp2.RequestHandler):
           userCount = 0
       else:
           userCount = counter.userCount
-      template_values = { 'counter':userCount, }
+      template_values = { 'counter':userCount,'captcha_secret':config.RECAPTCHA_KEY }
 
       # generate the html
       path = os.path.join(os.path.dirname(__file__), 'templates/index.html')
       self.response.out.write(template.render(path, template_values))
 
 ## end MainHandler
-
-class SignupHandler(webapp2.RequestHandler):
-    def post(self):
-        logging.info("New signup request...\n\tEmail: %s\n\tAdd/Remove: %s\n\tReference: %s\n\tNotes: %s",
-                     self.request.get('string'), self.request.get('signup'), self.request.get('reference'), self.request.get('comments'))
-
-        # send email to the new user
-        message = mail.EmailMessage()
-        message.sender='gtracy@gmail.com'
-
-        # first validate the email address
-        if not email_re.search(self.request.get('string')):
-            error_msg = "This address - %s - is not a valid email address. Check the formatting." % self.request.get('string')
-            logging.error(error_msg)
-            self.response.out.write("Oops. The email address was malformed! Please try again.")
-            return
-
-        blocked = False
-        # determine if this is a signup or remove request
-        if self.request.get('signup') == 'signup':
-            email_addr = self.request.get('string').lower()
-
-            # first check to see if the user is already on the list
-            q = db.GqlQuery("SELECT * FROM UserSignup WHERE email = :1", email_addr)
-            remove_entry = q.fetch(1)
-            if len(remove_entry) > 0:
-              error_msg = "This address - %s - is already on the distribution list." % email_addr
-              logging.error(error_msg)
-              self.response.out.write("Oops. It looks like this email address is already on the list.")
-              return
-
-            # if signing up, create a new user and add it to the store
-            userSignup = UserSignup()
-            userSignup.email = email_addr
-            userSignup.referral = self.request.get('reference')
-            userSignup.notes = self.request.get('comments')
-
-            # filter out requests if there is a URL in the comments field
-            if re.search("http",userSignup.referral) or re.search("http",userSignup.notes):
-                error_msg = "Request to add - %s - has been BLOCKED because of illegal text in the comments field." % email_addr
-                logging.error(error_msg)
-                template_values = {'error':error_msg}
-
-                # setup the specific email parameters
-                message.subject="APOD Email Signup BLOCKED"
-                message.to = email_addr
-                path = os.path.join(os.path.dirname(__file__), 'templates/invalid-email.html')
-                message.html = template.render(path,template_values)
-
-                # setup the confirmation page on the web
-                #path = os.path.join(os.path.dirname(__file__), 'templates/invalid.html')
-                msg = "Oops. No can do. This request is getting blocked because it looks fishy."
-            else:
-                # add the user to the database!
-                userSignup.put()
-
-                template_values = {'email':userSignup.email,
-                                   'referral':userSignup.referral,
-                                   'notes':userSignup.notes,
-                                   }
-
-                # setup the specific email parameters
-                message.subject="APOD Email Signup Confirmation"
-                message.to = email_addr
-                path = os.path.join(os.path.dirname(__file__), 'templates/added-email.html')
-                message.html = template.render(path,template_values)
-
-                # setup the confirmation page on the web
-                #path = os.path.join(os.path.dirname(__file__), 'templates/added.html')
-                msg = "Excellent! You've been added to the list.<p>Please consider a donation to support this project."
-
-        else:
-            email_addr = self.request.get('string').lower()
-            # if removing a user, first check to see that the request is valid
-            q = db.GqlQuery("SELECT * FROM UserSignup WHERE email = :1", email_addr)
-            remove_entry = q.fetch(1)
-            if len(remove_entry) > 0:
-                # if the user was found, remove them
-                db.delete(remove_entry)
-
-                # setup the specific email parameters
-                message.subject="APOD Email Removal Request"
-                message.to = self.request.get('string')
-                template_values = { 'email':email_addr,
-                                    'referral':self.request.get('reference'),
-                                    'notes':self.request.get('comments'),
-                                 }
-                path = os.path.join(os.path.dirname(__file__), 'templates/removed-email.html')
-                message.html = template.render(path,template_values)
-
-                # ... and show the thank you confirmation page
-                msg = "You've been removed from the list... Thanks!"
-            else:
-                error_msg = "This address - %s - is not on the distribution list!?" % email_addr
-                logging.error(error_msg)
-                msg = "Oops. This address doesn't appear to be on the list."
-                blocked = True
-
-        # send the message off...
-        if not blocked:
-            logging.debug("Sending email!")
-            task = Task(url='/emailqueue', params={'email':message.to,'subject':message.subject,'body':message.html})
-            task.add('emailqueue')
-
-        # report back on the status
-        logging.debug(msg)
-        self.response.out.write(msg)
-
-    def get(self):
-        self.post()
-
-## end SignupHandler
 
 class TodayHandler(webapp2.RequestHandler):
 
@@ -311,18 +190,6 @@ class GetEmailsHandler(webapp2.RequestHandler):
 
 ## end GetEmailsHandler
 
-class DeleteUserHandler(webapp2.RequestHandler):
-    def post(self):
-        user_key = self.request.get("user_key")
-        user = db.get(user_key)
-        if user is None:
-            logging.error('trying to delete user ID %s and FAILED' % user_key)
-        else:
-            logging.debug('trying to delete user %s and SUCCEEDED' % user_key)
-            user.delete()
-## end
-
-
 urlbase = "http://apod.nasa.gov/apod"
 url = urlbase + "/astropix.html"
 myemail = 'gtracy@cs.wisc.edu'
@@ -393,7 +260,6 @@ def fetchAPOD(self, sendEmail):
 # Create the WSGI application instance for the APOD signup
 #
 app = webapp2.WSGIApplication([('/', MainHandler),
-                                      ('/signup', SignupHandler),
                                       ('/dailyemail', FetchHandler),
                                       ('/emailqueue', EmailWorker),
                                       ('/fetchqueue', APODFetchHandler),
@@ -401,6 +267,5 @@ app = webapp2.WSGIApplication([('/', MainHandler),
                                       ('/api/emails', GetEmailsHandler),
                                       ('/pictureoftheday.*', TodayHandler),
                                       ('/admin/clean', CleanEmailsHandler),
-                                      ('/admin/delete/user', DeleteUserHandler),
                                       ],
                                      debug=True)

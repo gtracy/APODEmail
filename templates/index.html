@@ -10,11 +10,30 @@
     <link rel="stylesheet" href="public/style.css">
 
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
+
+    <script type="text/javascript" src="http://www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>
+    <!-- Wrapping the Recaptcha create method in a javascript function -->
+    <script type="text/javascript">
+         function showRecaptcha(element) {
+           Recaptcha.create("{{captcha_secret}}", element, {
+             theme: "red",
+             callback: Recaptcha.focus_response_field});
+         }
+         function hideRecaptcha(element) {
+            Recaptcha.destroy();
+         }
+    </script>
+
     <script type="text/javascript">
       $(document).ready(function() {
         $("#request-form").submit(function() {
               $("#form-container").slideUp("fast");
-              var args = "string="+$('#email').val()+"&signup="+$('#addremove:checked').val()+"&reference="+$('#refNote').val()+"&comments="+$('#commentNote').val()
+              var args = "string="+$('#email').val()
+                  + "&signup="+$('#addremove:checked').val()
+                  + "&reference="+$('#refNote').val()
+                  + "&comments="+$('#commentNote').val()
+                  + "&recaptcha_challenge_field="+$('#recaptcha_challenge_field').val()
+                  + "&recaptcha_response_field="+$('#recaptcha_response_field').val()
               $.ajax({
                 type: "POST",
                 url: "/signup",
@@ -77,22 +96,24 @@ Please comply with all copyright notices.</p>
     <form id=request-form method=post onsubmit="return false">
       Your email address:
       <input id="email" type=text size=30 name="string">
-      <input id="addremove" type=radio name="signup" value=signup checked>Signup
-      <input id="addremove" type=radio name="signup" value=remove>Remove
+      <input id="addremove" type=radio name="signup" value=signup checked onclick="showRecaptcha('recaptcha_div');">Signup
+      <input id="addremove" type=radio name="signup" value=remove onclick="hideRecaptcha('recaptcha_div');">Remove
       </br>
       <p>Any personal notes or feedback? <p> <input id="commentNote" type=text size=80 name="comments"></p>
 
-      <script type="text/javascript"
-         src="http://www.google.com/recaptcha/api/challenge?k=6LcngdwSAAAAAMZN2D3I0MbpxV-vkbBJ2gakCeEp">
-      </script>
-      <noscript>
-         <iframe src="http://www.google.com/recaptcha/api/noscript?k=6LcngdwSAAAAAMZN2D3I0MbpxV-vkbBJ2gakCeEp"
-             height="300" width="500" frameborder="0"></iframe><br>
-         <textarea name="recaptcha_challenge_field" rows="3" cols="40">
-         </textarea>
-         <input type="hidden" name="recaptcha_response_field"
-             value="manual_challenge">
-      </noscript>
+      <div id="recaptcha_div">
+        <script type="text/javascript"
+           src="http://www.google.com/recaptcha/api/challenge?k={{captcha_secret}}">
+        </script>
+        <noscript>
+           <iframe src="http://www.google.com/recaptcha/api/noscript?k={{captcha_secret}}"
+               height="300" width="500" frameborder="0"></iframe><br>
+           <textarea name="recaptcha_challenge_field" rows="3" cols="40">
+           </textarea>
+           <input type="hidden" name="recaptcha_response_field"
+               value="manual_challenge">
+        </noscript>
+      </div>
 
       <p><input style="font-size:48px;" type="submit" value="Submit"></p>
 
