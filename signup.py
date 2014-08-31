@@ -8,6 +8,7 @@ import time
 from google.appengine.api import users
 from google.appengine.api import urlfetch
 from google.appengine.api import quota
+from google.appengine.api import mail
 
 from google.appengine.api.labs import taskqueue
 from google.appengine.api.labs.taskqueue import Task
@@ -40,6 +41,8 @@ class SignupHandler(webapp2.RequestHandler):
             logging.error(error_msg)
             self.response.out.write("Oops. The email address was malformed! Please try again.")
             return
+
+        message = mail.EmailMessage(sender="APOD Email <gtracy@gmail.com>")
 
         blocked = False
         # determine if this is a signup or remove request
@@ -107,7 +110,7 @@ class SignupHandler(webapp2.RequestHandler):
 
                     # setup the confirmation page on the web
                     #path = os.path.join(os.path.dirname(__file__), 'templates/added.html')
-                    msg = "Excellent! You've been added to the list.<p>Please consider a donation to support this project."
+                    msg = "<h2>Excellent! You've been added to the list.</h2><p class='lead'>Please consider a donation to support this project.</p>"
             else:
                 blocked = True
                 msg = cResponse.error_code
@@ -133,7 +136,7 @@ class SignupHandler(webapp2.RequestHandler):
                 message.html = template.render(path,template_values)
 
                 # ... and show the thank you confirmation page
-                msg = "You've been removed from the list... Thanks!"
+                msg = "<h2>You've been removed from the list... Thanks!</h2>"
             else:
                 error_msg = "This address - %s - is not on the distribution list!?" % email_addr
                 logging.error(error_msg)
@@ -167,16 +170,11 @@ class DeleteUserHandler(webapp2.RequestHandler):
 ## end
 
 
-urlbase = "http://apod.nasa.gov/apod"
-url = urlbase + "/astropix.html"
-myemail = 'gtracy@cs.wisc.edu'
-footerText = "<hr><p><i><strong>This is an automated email. If you notice any problems, just send me a note at <a href=mailto:gtracy@cs.wisc.edu>gtracy@cs.wisc.edu</a>. You can add and remove email addresses to this distribution list here, <a href=http://apodemail.appspot.com>http://apodemail.appspot.com</a>.</strong></i></p>"
-
 #
 # Create the WSGI application instance for the APOD signup
 #
 app = webapp2.WSGIApplication([('/signup', SignupHandler),
-                               ('/admin/delete/user', DeleteUserHandler),
+                               ('/admin/delete/user', DeleteUserHandler)
                               ], debug=True)
 
 
