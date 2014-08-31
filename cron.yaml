@@ -2,4 +2,8 @@ cron:
 - description: tally the user count
   url: /usercount
   schedule: every 48 hours
-  
+
+- description: daily APOD email
+  url: /dailyemail
+  schedule: every day 13:00
+  timezone: America/Chicago
