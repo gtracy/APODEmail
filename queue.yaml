@@ -6,4 +6,3 @@ queue:
 - name: fetchqueue
   rate: 50/s
   bucket_size: 1
-  
