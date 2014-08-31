@@ -1,5 +1,5 @@
-application: apodemail
-version: sendgrid
+application: apodemail-hrd
+version: v2
 runtime: python27
 api_version: 1
 threadsafe: true
@@ -25,19 +25,27 @@ handlers:
   login: admin
 
 - url: /favicon.ico
-  static_files: img/favicon.ico
-  upload: img/favicon.ico
+  static_files: public/img/favicon.ico
+  upload: public/img/favicon.ico
 
 - url: /robots.txt
   static_files: robots.txt
   upload: robots.txt
 
-- url: /public/style.css
-  static_files: public/style.css
-  upload: public/style.css
+- url: /img/(.*)
+  static_files: public/img/\1
+  upload: public/img/(.*)
 
 - url: /signup
   script: signup.app
+
+- url: /admin/delete/user
+  script: signup.app
+  login: admin
+
+- url: /adhocemail
+  script: main.app
+  login: admin
 
 - url: /.*
   script: main.app

@@ -7,16 +7,17 @@
     <meta name="keywords" content="APOD, astronomy, astronomy picture of the day, NASA, NASA pictures, pictures of space, pictures of the universe, email distribution, email signup, signup, space, daily email">
     <meta name="google-site-verification" content="zwcKFrENLWd4sGLD_7psmaPACHF0oM_hlxUHrAlIgjQ" />
 
-	<!-- Latest compiled and minified CSS -->
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="shortcut icon" href="img/favicon.ico">
+  	<!-- Latest compiled and minified CSS -->
+  	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 
-	<!-- Optional theme -->
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+  	<!-- Optional theme -->
+  	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
 
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
 
-	<!-- Latest compiled and minified JavaScript -->
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+  	<!-- Latest compiled and minified JavaScript -->
+  	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 
     <script type="text/javascript" src="http://www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>
     <!-- Wrapping the Recaptcha create method in a javascript function -->
@@ -53,7 +54,7 @@
                     $("#form-container").slideDown("fast");
                     $("#form-answer").replaceWith('<div id="form-answer"><p style="color: red;font-weight: bold">'+response+'</p></div>');
                   } else {
-                    $("#form-answer").replaceWith('<div id="form-answer"><h2>'+response+'</h2></div><hr>');
+                    $("#form-answer").replaceWith('<div id="form-answer">'+response+'</div>');
                   }
                 } // success function
               }); // .ajax
@@ -76,15 +77,20 @@
 
   	<div class="container" role="main">
   		<div class="page-header">
-  			<h1>Email Signup: </br>Astronomy Picture of the Day (APOD)</h1>
+        <div class="row">
+          <div class="col-xs-6 col-md-3">
+            <a href="#" class="thumbnail">
+              <img src="img/earth.jpg" alt="Earth">
+            </a>
+          </div>
+            <h1>Email Signup: </br>Astronomy Picture of the Day (APOD)</h1>
+      <p class="lead">Get <a href=http://apod.nasa.gov/apod/>APOD</a> in your email inbox each day!</p>
+        </div>
   		</div>
-  		<p class="lead">Get <a href=http://apod.nasa.gov/apod/>APOD</a> in your email inbox each day!</p>
 		<p>The APOD pictures are brought to you by
 		<a href=http://antwrp.gsfc.nasa.gov/htmltest/rjn.html>Robert Nemiroff</a> and
 		<a href=http://antwrp.gsfc.nasa.gov/htmltest/jbonnell/www/bonnell.html>Jerry Bonnell</a>.
 		Please comply with all copyright notices.</p>
-
-		<hr>
 
 		<div id="form-answer">
 		</div>
@@ -92,7 +98,7 @@
 
 <div id="form-container">
 	<div class="panel panel-primary">
-		<div class="panel-heading">Signup</div>
+		<div class="panel-heading">Signup (or remove)</div>
 		<div class="panel-body">
 
 		    <form id="request-form" method="post" onsubmit="return false">
