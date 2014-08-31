@@ -199,11 +199,12 @@ class AdhocEmailHandler(webapp2.RequestHandler):
         # use the task infrastructure to send emails
         template_values = {  }
         path = os.path.join(os.path.dirname(__file__), template_file)
+        body = template.render(path, template_values)
 
         users = db.GqlQuery("SELECT * FROM UserSignup")
         for u in users:
             logging.info('Sending email to %s ' % u.email)
-            task = Task(url='/emailqueue', params={'email':u.email,'subject':subject,'body':template.render(path, template_values)})
+            task = Task(url='/emailqueue', params={'email':u.email,'subject':subject,'body':body})
             task.add('emailqueue')
 
         self.response.out.write(template.render(path, template_values))
