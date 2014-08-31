@@ -81,12 +81,13 @@ class EmailWorker(webapp2.RequestHandler):
             # send email
             apod_message = mail.EmailMessage()
             apod_message.subject = subject
-            apod_message.sender = 'apod@gregtracy.com'
+            apod_message.sender = 'gtracy@gmail.com'
             apod_message.html = body
             apod_message.to = email
             if subject.find('APOD Email') > -1:
                 apod_message.bcc = 'gtracy@gmail.com'
             apod_message.send()
+            logging.info('Sent email to %s' % apod_message.to)
 
             # fetch the URL to simulate a user's site visit
             try:
@@ -190,10 +191,30 @@ class GetEmailsHandler(webapp2.RequestHandler):
 
 ## end GetEmailsHandler
 
+class AdhocEmailHandler(webapp2.RequestHandler):
+    def get(self):
+        subject = "APOD is coming back!"
+        template_file = "templates/adhocemail.html"
+
+        # use the task infrastructure to send emails
+        template_values = {  }
+        path = os.path.join(os.path.dirname(__file__), template_file)
+
+        users = db.GqlQuery("SELECT * FROM UserSignup")
+        for u in users:
+            logging.info('Sending email to %s ' % u.email)
+            task = Task(url='/emailqueue', params={'email':u.email,'subject':subject,'body':template.render(path, template_values)})
+            task.add('emailqueue')
+
+        self.response.out.write(template.render(path, template_values))
+
+## end ApologyHandler
+
+
 urlbase = "http://apod.nasa.gov/apod"
 url = urlbase + "/astropix.html"
-myemail = 'gtracy@cs.wisc.edu'
-footerText = "<hr><p><i><strong>This is an automated email. If you notice any problems, just send me a note at <a href=mailto:gtracy@cs.wisc.edu>gtracy@cs.wisc.edu</a>. You can add and remove email addresses to this distribution list here, <a href=http://apodemail.appspot.com>http://apodemail.appspot.com</a>.</strong></i></p>"
+myemail = 'gtracy@gmail.com'
+footerText = "<hr><p><i><strong>This is an automated email. If you notice any problems, just send me a note at <a href=mailto:gtracy@gmail.com>gtracy@gmail.com</a>. You can add and remove email addresses to this distribution list here, <a href=http://apodemail.appspot.com>http://apodemail.appspot.com</a>.</strong></i></p>"
 
 def fetchAPOD(self, sendEmail):
 
@@ -261,6 +282,7 @@ def fetchAPOD(self, sendEmail):
 #
 app = webapp2.WSGIApplication([('/', MainHandler),
                                       ('/dailyemail', FetchHandler),
+                                      ('/adhocemail', AdhocEmailHandler),
                                       ('/emailqueue', EmailWorker),
                                       ('/fetchqueue', APODFetchHandler),
                                       ('/usercount', BackgroundCountHandler),
