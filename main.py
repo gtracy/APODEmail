@@ -201,7 +201,7 @@ class AdhocEmailHandler(webapp2.RequestHandler):
         path = os.path.join(os.path.dirname(__file__), template_file)
         body = template.render(path, template_values)
 
-        users = db.GqlQuery("SELECT * FROM UserSignup")
+        users = data_model.UserSignup.all()
         for u in users:
             logging.info('Sending email to %s ' % u.email)
             task = Task(url='/emailqueue', params={'email':u.email,'subject':subject,'body':body})
@@ -220,7 +220,6 @@ footerText = "<hr><p><i><strong>This is an automated email. If you notice any pr
 def fetchAPOD(self, sendEmail):
 
      logging.debug("fetching the APOD site...")
-     start = quota.get_request_cpu_usage()
 
      loop = 0
      done = False
