@@ -90,11 +90,11 @@ class EmailWorker(webapp2.RequestHandler):
             logging.info('Sent email to %s' % apod_message.to)
 
             # fetch the URL to simulate a user's site visit
-            try:
-                result = urlfetch.fetch(urlbase)
-            except urlfetch.DownloadError:
-                logging.error("DownloadError while fetching the page during email delivery")
-                return
+            # try:
+            #     result = urlfetch.fetch(urlbase)
+            # except urlfetch.DownloadError:
+            #     logging.error("DownloadError while fetching the page during email delivery")
+            #     return
 
         except apiproxy_errors.DeadlineExceededError:
             logging.error("DeadlineExceededError exception!?! Try to set status and return normally")
@@ -275,6 +275,9 @@ def fetchAPOD(self, sendEmail):
          for u in users:
              task = Task(url='/emailqueue', params={'email':u.email,'subject':"Astronomy Picture Of The Day",'body':soup})
              task.add('emailqueue')
+
+         # task = Task(url='/emailqueue', params={'email':'gtracy@gmail.com','subject':"TEST :Astronomy Picture Of The Day",'body':str(soup)})
+         # task.add('emailqueue')
 
 
 #
