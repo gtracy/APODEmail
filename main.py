@@ -26,7 +26,8 @@ from BeautifulSoup import BeautifulSoup, Tag
 from django.core.validators import email_re
 
 import config
-import data_model
+from data_model import UserSignup
+from data_model import UserCounter
 
 class MainHandler(webapp2.RequestHandler):
   def get(self):
@@ -86,8 +87,11 @@ class EmailWorker(webapp2.RequestHandler):
             apod_message.to = email
             if subject.find('APOD Email') > -1:
                 apod_message.bcc = 'gtracy@gmail.com'
+
             apod_message.send()
             logging.info('Sent email to %s' % apod_message.to)
+            #if email.find('gtracy@gmail.com') > -1:
+            #    apod_message.send()
 
             # fetch the URL to simulate a user's site visit
             # try:
@@ -201,9 +205,9 @@ class AdhocEmailHandler(webapp2.RequestHandler):
         path = os.path.join(os.path.dirname(__file__), template_file)
         body = template.render(path, template_values)
 
-        users = data_model.UserSignup.all()
+        users = db.GqlQuery("SELECT email FROM UserSignup")
         for u in users:
-            logging.info('Sending email to %s ' % u.email)
+            #logging.info('Sending email to %s ' % u.email)
             task = Task(url='/emailqueue', params={'email':u.email,'subject':subject,'body':body})
             task.add('emailqueue')
 
@@ -234,7 +238,7 @@ def fetchAPOD(self, sendEmail):
                logging.debug("Error status: %s" % result.status_code)
                logging.debug("Error header: %s" % result.headers)
                logging.debug("Error content: %s" % result.content)
-           time.sleep(6)
+           time.sleep(4)
            loop = loop+1
 
      if result is None or result.status_code != 200:
@@ -242,7 +246,7 @@ def fetchAPOD(self, sendEmail):
          return
 
      soup = BeautifulSoup(result.content)
-     logging.debug(soup)
+     #logging.debug(soup)
 
      # fix all of the relative links
      for a in soup.html.body.findAll('a'):
@@ -265,19 +269,17 @@ def fetchAPOD(self, sendEmail):
      footer.insert(0,footerText)
      soup('br')[-1].insert(0,footer)
 
-     template_values = { 'content':soup }
-     path = os.path.join(os.path.dirname(__file__), 'templates/cron.html')
-     self.response.out.write(template.render(path, template_values))
+     # template_values = { 'content':soup }
+     # path = os.path.join(os.path.dirname(__file__), 'templates/cron.html')
+     # self.response.out.write(template.render(path, template_values))
 
-     query_time = 0
      if sendEmail:
-         users = db.GqlQuery("SELECT * FROM UserSignup")
+         users = db.GqlQuery("SELECT email FROM UserSignup")
          for u in users:
-             task = Task(url='/emailqueue', params={'email':u.email,'subject':"Astronomy Picture Of The Day",'body':soup})
+             task = Task(url='/emailqueue', params={'email':u.email,'subject':"Astronomy Picture Of The Day",'body':str(soup)})
              task.add('emailqueue')
 
-         # task = Task(url='/emailqueue', params={'email':'gtracy@gmail.com','subject':"TEST :Astronomy Picture Of The Day",'body':str(soup)})
-         # task.add('emailqueue')
+     self.response.out.write('success');
 
 
 #
