@@ -226,6 +226,9 @@ def fetchAPOD(self, start, end, sendEmail):
      footer.insert(0,footerText)
      soup('br')[-1].insert(0,footer)
 
+     title = soup('center')[1].b.string
+     subject = "APOD - %s" % title
+
      # template_values = { 'content':soup }
      # path = os.path.join(os.path.dirname(__file__), 'templates/cron.html')
      # self.response.out.write(template.render(path, template_values))
@@ -235,11 +238,11 @@ def fetchAPOD(self, start, end, sendEmail):
          users = db.GqlQuery("SELECT email FROM UserSignup WHERE date >= :1 AND date <= :2", start, end)
          for u in users:
             user_count += 1
-            task = Task(url='/emailqueue', params={'email':u.email,'subject':"Astronomy Picture Of The Day",'body':str(soup)})
+            task = Task(url='/emailqueue', params={'title':title,'email':u.email,'subject':subject,'body':str(soup)})
             task.add('emailqueue')
 
      logging.info('Spawned %s email tasks for %s' % (user_count, start))
-     self.response.out.write('success %s' % user_count);
+     self.response.out.write('%s %s' % (subject, user_count))
 
 
 #
