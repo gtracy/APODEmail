@@ -4,6 +4,36 @@ cron:
   schedule: every 48 hours
 
 - description: daily APOD email
-  url: /dailyemail
+  url: /dailyemail/2009
   schedule: every day 13:00
+  timezone: America/Chicago
+
+- description: daily APOD email
+  url: /dailyemail/2010
+  schedule: every day 13:02
+  timezone: America/Chicago
+
+- description: daily APOD email
+  url: /dailyemail/2011
+  schedule: every day 13:04
+  timezone: America/Chicago
+
+- description: daily APOD email
+  url: /dailyemail/2012
+  schedule: every day 13:06
+  timezone: America/Chicago
+
+- description: daily APOD email
+  url: /dailyemail/2013
+  schedule: every day 13:08
+  timezone: America/Chicago
+
+- description: daily APOD email
+  url: /dailyemail/2014
+  schedule: every day 13:10
+  timezone: America/Chicago
+
+- description: daily APOD email
+  url: /dailyemail/2015
+  schedule: every day 13:12
   timezone: America/Chicago

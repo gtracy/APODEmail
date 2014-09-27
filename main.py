@@ -4,6 +4,7 @@ import urllib2
 import re
 import logging
 import time
+import datetime
 
 from google.appengine.api import users
 from google.appengine.api import mail
@@ -29,6 +30,7 @@ import config
 from data_model import UserSignup
 from data_model import UserCounter
 
+
 class MainHandler(webapp2.RequestHandler):
   def get(self):
 
@@ -48,26 +50,19 @@ class MainHandler(webapp2.RequestHandler):
 
 ## end MainHandler
 
-class TodayHandler(webapp2.RequestHandler):
-
-    def get(self):
-         fetchAPOD(self, False)
-
-    def post(self):
-        fetchAPOD(self, False)
-
-## end TodayHandler
-
-
 class FetchHandler(webapp2.RequestHandler):
 
-    def get(self):
+    def get(self, year):
+        logging.error("fetch APOD for year : %s" % year)
+        start = datetime.datetime(int(year),1,1)
+        end = datetime.datetime(int(year),12,31,23,59,59)
+        logging.error("%s : %s" % (start,end))
 
-         user = users.get_current_user()
-         if user or self.request.headers['X-AppEngine-Cron']:
-             fetchAPOD(self, True)
-         else:
-             logging.error("failed to find a user! Baling out...")
+        user = users.get_current_user()
+        if user or self.request.headers['X-AppEngine-Cron']:
+            fetchAPOD(self, start, end, True)
+        else:
+            logging.error("failed to find a user! Baling out...")
 
 ## end FetchHandler
 
@@ -89,7 +84,7 @@ class EmailWorker(webapp2.RequestHandler):
                 apod_message.bcc = 'gtracy@gmail.com'
 
             apod_message.send()
-            logging.info('Sent email to %s' % apod_message.to)
+            #logging.info('Sent email to %s' % apod_message.to)
             #if email.find('gtracy@gmail.com') > -1:
             #    apod_message.send()
 
@@ -108,17 +103,6 @@ class EmailWorker(webapp2.RequestHandler):
 
 ## end EmailWorker
 
-class APODFetchHandler(webapp2.RequestHandler):
-    def post(self):
-        # fetch the URL to simulate a user's site visit
-        try:
-            result = urlfetch.fetch(urlbase)
-        except urlfetch.DownloadError:
-            logging.error("APODFetchHandler :: DownloadError while fetching the APOD page")
-            return
-
-## end APODFetchHandler
-
 class BackgroundCountHandler(webapp2.RequestHandler):
     def get(self):
         self.post()
@@ -126,7 +110,7 @@ class BackgroundCountHandler(webapp2.RequestHandler):
     def post(self):
         counter = 0
 
-        q = db.GqlQuery("SELECT * FROM UserSignup LIMIT 1000")
+        q = db.GqlQuery("SELECT __key__ FROM UserSignup LIMIT 1000")
         offset = 0
         result = q.fetch(1000)
         while result:
@@ -168,33 +152,6 @@ class CleanEmailsHandler(webapp2.RequestHandler):
 
 ## end MainHandler
 
-class GetEmailsHandler(webapp2.RequestHandler):
-    def get(self):
-        key = self.request.get('key')
-        if key != config.API_SECRET:
-            logging.error('ILLEGAL email request -----> key is: %s' % key)
-            self.response.set_status(401)
-            self.response.out.write('illegal access')
-        else:
-            users = db.GqlQuery("SELECT * FROM UserSignup")
-            if users is None:
-                self.response.out.write('empty')
-            else:
-                emails = ''
-                for u in users:
-                    emails += '%s,' % u.email
-
-                    # here's something goofy... we're going to spawn a task
-                    # to fetch the APOD site content for each user. we do
-                    # this because the APOD authors ask that we maintain
-                    # traffic levels on the site for users on the distribution list
-                    #task = Task(url='/fetchqueue')
-                    #task.add('fetchqueue')
-
-                self.response.out.write(emails.rstrip(','))  # strip off trailing comma
-
-## end GetEmailsHandler
-
 class AdhocEmailHandler(webapp2.RequestHandler):
     def get(self):
         subject = "APOD is coming back!"
@@ -221,7 +178,7 @@ url = urlbase + "/astropix.html"
 myemail = 'gtracy@gmail.com'
 footerText = "<hr><p><i><strong>This is an automated email. If you notice any problems, just send me a note at <a href=mailto:gtracy@gmail.com>gtracy@gmail.com</a>. You can add and remove email addresses to this distribution list here, <a href=http://apodemail.appspot.com>http://apodemail.appspot.com</a>.</strong></i></p>"
 
-def fetchAPOD(self, sendEmail):
+def fetchAPOD(self, start, end, sendEmail):
 
      logging.debug("fetching the APOD site...")
 
@@ -273,26 +230,26 @@ def fetchAPOD(self, sendEmail):
      # path = os.path.join(os.path.dirname(__file__), 'templates/cron.html')
      # self.response.out.write(template.render(path, template_values))
 
+     user_count = 0
      if sendEmail:
-         users = db.GqlQuery("SELECT email FROM UserSignup")
+         users = db.GqlQuery("SELECT email FROM UserSignup WHERE date >= :1 AND date <= :2", start, end)
          for u in users:
-             task = Task(url='/emailqueue', params={'email':u.email,'subject':"Astronomy Picture Of The Day",'body':str(soup)})
-             task.add('emailqueue')
+            user_count += 1
+            task = Task(url='/emailqueue', params={'email':u.email,'subject':"Astronomy Picture Of The Day",'body':str(soup)})
+            task.add('emailqueue')
 
-     self.response.out.write('success');
+     logging.info('Spawned %s email tasks for %s' % (user_count, start))
+     self.response.out.write('success %s' % user_count);
 
 
 #
 # Create the WSGI application instance for the APOD signup
 #
 app = webapp2.WSGIApplication([('/', MainHandler),
-                                      ('/dailyemail', FetchHandler),
-                                      ('/adhocemail', AdhocEmailHandler),
-                                      ('/emailqueue', EmailWorker),
-                                      ('/fetchqueue', APODFetchHandler),
-                                      ('/usercount', BackgroundCountHandler),
-                                      ('/api/emails', GetEmailsHandler),
-                                      ('/pictureoftheday.*', TodayHandler),
-                                      ('/admin/clean', CleanEmailsHandler),
-                                      ],
-                                     debug=True)
+                               ('/dailyemail/(.*)', FetchHandler),
+                               ('/adhocemail', AdhocEmailHandler),
+                               ('/emailqueue', EmailWorker),
+                               ('/usercount', BackgroundCountHandler),
+                               ('/admin/clean', CleanEmailsHandler),
+                              ],
+                              debug=True)

@@ -1,5 +1,5 @@
 application: apodemail-hrd
-version: v2
+version: chunked-cron
 runtime: python27
 api_version: 1
 threadsafe: true
@@ -11,8 +11,11 @@ libraries:
 - name: django
   version: latest
 
+builtins:
+- appstats: on
+
 handlers:
-- url: /dailyemail
+- url: /dailyemail/(.*)
   script: main.app
   login: admin
 

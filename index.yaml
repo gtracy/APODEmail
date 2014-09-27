@@ -1,0 +1,5 @@
+indexes:
+- kind: UserSignup
+  properties:
+  - name: date
+  - name: email
