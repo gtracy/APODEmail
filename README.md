@@ -6,7 +6,7 @@ The app is currently deployed on Google App Engine.
 
 Interested in signing up for the email list? Go here...
 
-http://apodemail.appspot.com
+http://apodemail.org
 
 ### Getting Started
 If you'd like to deploy your own version, follow these steps:

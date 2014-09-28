@@ -176,7 +176,7 @@ class AdhocEmailHandler(webapp2.RequestHandler):
 urlbase = "http://apod.nasa.gov/apod"
 url = urlbase + "/astropix.html"
 myemail = 'gtracy@gmail.com'
-footerText = "<hr><p><i><strong>This is an automated email. If you notice any problems, just send me a note at <a href=mailto:gtracy@gmail.com>gtracy@gmail.com</a>. You can add and remove email addresses to this distribution list here, <a href=http://apodemail.appspot.com>http://apodemail.appspot.com</a>.</strong></i></p>"
+footerText = "<hr><p><i><strong>This is an automated email. If you notice any problems, just send me a note at <a href=mailto:gtracy@gmail.com>gtracy@gmail.com</a>. You can add and remove email addresses to this distribution list here, <a href=http://apodemail.org>http://apodemail.org</a>.</strong></i></p>"
 
 def fetchAPOD(self, start, end, sendEmail):
 
