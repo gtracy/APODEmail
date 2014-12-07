@@ -1,6 +1,5 @@
 import webapp2
 import os
-import urllib2
 import re
 import logging
 import time
@@ -9,25 +8,16 @@ import datetime
 from google.appengine.api import users
 from google.appengine.api import mail
 from google.appengine.api import urlfetch
-from google.appengine.api import quota
-
-from google.appengine.api.labs import taskqueue
 from google.appengine.api.labs.taskqueue import Task
-from google.appengine.api.urlfetch import DownloadError
-from google.appengine.api.mail import InvalidEmailError
 
 from google.appengine.ext import db
-
 from google.appengine.ext.webapp import template
-from google.appengine.ext.webapp.util import run_wsgi_app
 
 from google.appengine.runtime import apiproxy_errors
 
 from BeautifulSoup import BeautifulSoup, Tag
-from django.core.validators import email_re
 
 import config
-from data_model import UserSignup
 from data_model import UserCounter
 
 
@@ -80,20 +70,10 @@ class EmailWorker(webapp2.RequestHandler):
             apod_message.sender = 'gtracy@gmail.com'
             apod_message.html = body
             apod_message.to = email
-            if subject.find('APOD Email') > -1:
+            if subject.find('APOD Email') > -1 and self.request.get('bcc') == 'True':
                 apod_message.bcc = 'gtracy@gmail.com'
 
             apod_message.send()
-            #logging.info('Sent email to %s' % apod_message.to)
-            #if email.find('gtracy@gmail.com') > -1:
-            #    apod_message.send()
-
-            # fetch the URL to simulate a user's site visit
-            # try:
-            #     result = urlfetch.fetch(urlbase)
-            # except urlfetch.DownloadError:
-            #     logging.error("DownloadError while fetching the page during email delivery")
-            #     return
 
         except apiproxy_errors.DeadlineExceededError:
             logging.error("DeadlineExceededError exception!?! Try to set status and return normally")

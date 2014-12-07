@@ -1,28 +1,13 @@
 import webapp2
 import os
-import urllib2
 import re
 import logging
-import time
 
-from google.appengine.api import users
-from google.appengine.api import urlfetch
-from google.appengine.api import quota
 from google.appengine.api import mail
-
-from google.appengine.api.labs import taskqueue
 from google.appengine.api.labs.taskqueue import Task
-from google.appengine.api.urlfetch import DownloadError
-from google.appengine.api.mail import InvalidEmailError
-
 from google.appengine.ext import db
-
 from google.appengine.ext.webapp import template
-from google.appengine.ext.webapp.util import run_wsgi_app
 
-from google.appengine.runtime import apiproxy_errors
-
-from BeautifulSoup import BeautifulSoup, Tag
 from django.core.validators import email_re
 
 import config
@@ -45,6 +30,7 @@ class SignupHandler(webapp2.RequestHandler):
         message = mail.EmailMessage(sender="APOD Email <gtracy@gmail.com>")
 
         blocked = False
+        bcc = False
         # determine if this is a signup or remove request
         if self.request.get('signup') == 'signup':
 
@@ -137,6 +123,10 @@ class SignupHandler(webapp2.RequestHandler):
 
                 # ... and show the thank you confirmation page
                 msg = "<h2>You've been removed from the list... Thanks!</h2>"
+
+                # email me if they've left comments
+                if len(self.request.get('comments')) > 0:
+                    bcc = True
             else:
                 error_msg = "This address - %s - is not on the distribution list!?" % email_addr
                 logging.error(error_msg)
@@ -146,7 +136,7 @@ class SignupHandler(webapp2.RequestHandler):
         # send the message off...
         if not blocked:
             logging.debug("Sending email!")
-            task = Task(url='/emailqueue', params={'email':message.to,'subject':message.subject,'body':message.html})
+            task = Task(url='/emailqueue', params={'email':message.to,'subject':message.subject,'body':message.html,'bcc':bcc})
             task.add('emailqueue')
 
         # report back on the status
