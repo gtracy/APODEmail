@@ -43,10 +43,10 @@ class MainHandler(webapp2.RequestHandler):
 class FetchHandler(webapp2.RequestHandler):
 
     def get(self, year):
-        logging.error("fetch APOD for year : %s" % year)
+        logging.info("fetch APOD for year : %s" % year)
         start = datetime.datetime(int(year),1,1)
         end = datetime.datetime(int(year),12,31,23,59,59)
-        logging.error("%s : %s" % (start,end))
+        logging.info("%s : %s" % (start,end))
 
         user = users.get_current_user()
         if user or self.request.headers['X-AppEngine-Cron']:

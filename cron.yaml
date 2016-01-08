@@ -37,3 +37,8 @@ cron:
   url: /dailyemail/2015
   schedule: every day 13:12
   timezone: America/Chicago
+
+- description: daily APOD email
+  url: /dailyemail/2016
+  schedule: every day 13:12
+  timezone: America/Chicago
