@@ -4,41 +4,67 @@ cron:
   schedule: every 48 hours
 
 - description: daily APOD email
-  url: /dailyemail/2009
+  url: /dailyemail/2009/1/12
+  schedule: every day 12:00
+  timezone: America/Chicago
+
+- description: daily APOD email
+  url: /dailyemail/2010/1/12
+  schedule: every day 12:05
+  timezone: America/Chicago
+
+- description: daily APOD email
+  url: /dailyemail/2011/1/12
+  schedule: every day 12:10
+  timezone: America/Chicago
+
+- description: daily APOD email
+  url: /dailyemail/2012/1/7
+  schedule: every day 12:15
+  timezone: America/Chicago
+
+- description: daily APOD email
+  url: /dailyemail/2012/8/12
+  schedule: every day 12:20
+  timezone: America/Chicago
+
+- description: daily APOD email
+  url: /dailyemail/2013/1/7
+  schedule: every day 12:30
+  timezone: America/Chicago
+
+- description: daily APOD email
+  url: /dailyemail/2013/8/12
+  schedule: every day 12:40
+  timezone: America/Chicago
+
+- description: daily APOD email
+  url: /dailyemail/2014/1/7
+  schedule: every day 12:45
+  timezone: America/Chicago
+
+- description: daily APOD email
+  url: /dailyemail/2014/8/12
+  schedule: every day 12:50
+  timezone: America/Chicago
+
+- description: daily APOD email
+  url: /dailyemail/2015/1/7
+  schedule: every day 12:55
+  timezone: America/Chicago
+
+- description: daily APOD email
+  url: /dailyemail/2015/8/12
   schedule: every day 13:00
   timezone: America/Chicago
 
 - description: daily APOD email
-  url: /dailyemail/2010
-  schedule: every day 13:02
+  url: /dailyemail/2016/1/7
+  schedule: every day 13:05
   timezone: America/Chicago
 
 - description: daily APOD email
-  url: /dailyemail/2011
-  schedule: every day 13:04
-  timezone: America/Chicago
-
-- description: daily APOD email
-  url: /dailyemail/2012
-  schedule: every day 13:06
-  timezone: America/Chicago
-
-- description: daily APOD email
-  url: /dailyemail/2013
-  schedule: every day 13:08
-  timezone: America/Chicago
-
-- description: daily APOD email
-  url: /dailyemail/2014
+  url: /dailyemail/2016/8/12
   schedule: every day 13:10
   timezone: America/Chicago
 
-- description: daily APOD email
-  url: /dailyemail/2015
-  schedule: every day 13:12
-  timezone: America/Chicago
-
-- description: daily APOD email
-  url: /dailyemail/2016
-  schedule: every day 13:12
-  timezone: America/Chicago

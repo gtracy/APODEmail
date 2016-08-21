@@ -42,10 +42,10 @@ class MainHandler(webapp2.RequestHandler):
 
 class FetchHandler(webapp2.RequestHandler):
 
-    def get(self, year):
-        logging.info("fetch APOD for year : %s" % year)
-        start = datetime.datetime(int(year),1,1)
-        end = datetime.datetime(int(year),12,31,23,59,59)
+    def get(self, year, start, end):
+        logging.info("fetch APOD for year : %s, start : %s, end : %s" % (year,start,end))
+        start = datetime.datetime(int(year),int(start),1)
+        end = datetime.datetime(int(year),int(end),31,23,59,59)
         logging.info("%s : %s" % (start,end))
 
         user = users.get_current_user()
@@ -229,7 +229,7 @@ def fetchAPOD(self, start, end, sendEmail):
 # Create the WSGI application instance for the APOD signup
 #
 app = webapp2.WSGIApplication([('/', MainHandler),
-                               ('/dailyemail/(.*)', FetchHandler),
+                               ('/dailyemail/(.*)/(.*)/(.*)', FetchHandler),
                                ('/adhocemail', AdhocEmailHandler),
                                ('/emailqueue', EmailWorker),
                                ('/usercount', BackgroundCountHandler),

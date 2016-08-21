@@ -1,5 +1,5 @@
 application: apodemail-hrd
-version: stable
+version: cron-schedule-split
 runtime: python27
 api_version: 1
 threadsafe: true
