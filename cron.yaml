@@ -84,17 +84,12 @@ cron:
   timezone: America/Chicago
 
 - description: daily APOD email
-  url: /dailyemail/2017/4/6
+  url: /dailyemail/2017/4/7
   schedule: every day 13:11
   timezone: America/Chicago
 
 - description: daily APOD email
-  url: /dailyemail/2017/7/9
+  url: /dailyemail/2017/8/12
   schedule: every day 13:15
-  timezone: America/Chicago
-
-- description: daily APOD email
-  url: /dailyemail/2017/10/12
-  schedule: every day 13:10
   timezone: America/Chicago
 
