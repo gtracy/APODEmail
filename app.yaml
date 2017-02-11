@@ -1,5 +1,5 @@
 application: apodemail-hrd
-version: cron-schedule-2017
+version: paypal-fix
 runtime: python27
 api_version: 1
 threadsafe: true
