@@ -9,38 +9,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="shortcut icon" href="img/favicon.ico">
-  	<!-- Latest compiled and minified CSS -->
   	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-
-  	<!-- Optional theme -->
   	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
 
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-
-  	<!-- Latest compiled and minified JavaScript -->
   	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-
-    <script type="text/javascript" src="https://www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>
-    <!--<script src="https://www.google.com/recaptcha/api.js" async defer></script> -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
     <!-- Wrapping the Recaptcha create method in a javascript function -->
     <script type="text/javascript">
          function showRecaptcha(element) {
-           $('#feedback-container').hide();
-           Recaptcha.create("{{captcha_secret}}", element, {
-             theme: "red",
-             callback: Recaptcha.focus_response_field});
+            $('#feedback-container').hide();
+            grecaptcha.render('html_element', {
+              'sitekey' : '{{captcha_secret}}'
+            });
          }
          function hideRecaptcha(element) {
-         	$('#recaptcha_div').slideDown("slow");
-            Recaptcha.destroy();
+            $('#recaptcha_div').slideDown("slow");
             $('#feedback-container').replaceWith('<div id="feedback-container" class="form-group"><label for="commentNote">Feedback</label></br><input class="form-control" id="commentNote" type=text size=80 name="comments" placeholder="Optional feedback"></div>');
          }
-    </script>
-    <script type="text/javascript">
-      var RecaptchaOptions = {
-        theme : 'clean'
-       };
     </script>
 
     <script type="text/javascript">
@@ -51,8 +38,7 @@
                   + "&signup="+$('#addremove:checked').val()
                   + "&reference="+$('#refNote').val()
                   + "&comments="+$('#commentNote').val()
-                  + "&recaptcha_challenge_field="+$('#recaptcha_challenge_field').val()
-                  + "&recaptcha_response_field="+$('#recaptcha_response_field').val()
+                  + "&g-recaptcha-response="+grecaptcha.getResponse()
               $.ajax({
                 type: "POST",
                 url: "/signup",
@@ -136,25 +122,10 @@
 	    		    <label><input id="addremove" type="radio" name="signup" value=remove onclick="hideRecaptcha('recaptcha_div');">Remove</label>
 			    </div>
 
-<!--            
-            <div class="g-recaptcha" data-sitekey="{{captcha_secret}}"></div>
--->
           <div id="recaptcha_div">
-		        <script type="text/javascript"
-		           src="https://www.google.com/recaptcha/api/challenge?k={{captcha_secret}}">
-		        </script>
-		        <noscript>
-		           <iframe src="https://www.google.com/recaptcha/api/noscript?k={{captcha_secret}}"
-		               height="300" width="500" frameborder="0"></iframe><br>
-		           <textarea name="recaptcha_challenge_field" rows="3" cols="40">
-		           </textarea>
-		           <input type="hidden" class="form-control" name="recaptcha_response_field"
-		               value="manual_challenge">
-		        </noscript>
+            <div class="g-recaptcha" data-sitekey="{{captcha_secret}}"></div>
 		      </div>
-<!--            
--->
-		        <button type="submit" class="btn btn-primary">Submit</button>
+	        <button type="submit" class="btn btn-primary">Submit</button>
 
 		    </form>
 

@@ -35,13 +35,10 @@ class SignupHandler(webapp2.RequestHandler):
         if self.request.get('signup') == 'signup':
 
             # first validate the captcha
-            challenge = self.request.get('recaptcha_challenge_field')
-            response  = self.request.get('recaptcha_response_field')
+            response  = self.request.get('g-recaptcha-response')
             remoteip  = self.request.get('remote_addr')
-            logging.info("Captcha request... \n\tchallenge: %s\n\tresponse: %s\n\tIP: %s\n\t",
-                challenge,response,remoteip)
+            logging.info("Captcha request... \n\tresponse: %s\n\tIP: %s\n\t",response,remoteip)
             cResponse = captcha.submit(
-                challenge,
                 response,
                 config.RECAPTCHA_PRIVATE_KEY,
                 remoteip)
