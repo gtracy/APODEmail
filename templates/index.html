@@ -6,20 +6,23 @@
     <meta name="description" content="A service that delivers a daily email containing the astronomy picture of the day.">
     <meta name="keywords" content="APOD, astronomy, astronomy picture of the day, NASA, NASA pictures, pictures of space, pictures of the universe, email distribution, email signup, signup, space, daily email">
     <meta name="google-site-verification" content="zwcKFrENLWd4sGLD_7psmaPACHF0oM_hlxUHrAlIgjQ" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="shortcut icon" href="img/favicon.ico">
   	<!-- Latest compiled and minified CSS -->
-  	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+  	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 
   	<!-- Optional theme -->
   	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
 
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 
   	<!-- Latest compiled and minified JavaScript -->
-  	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+  	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
-    <script type="text/javascript" src="http://www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>
+    <script type="text/javascript" src="https://www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>
+    <!--<script src="https://www.google.com/recaptcha/api.js" async defer></script> -->
+
     <!-- Wrapping the Recaptcha create method in a javascript function -->
     <script type="text/javascript">
          function showRecaptcha(element) {
@@ -85,8 +88,8 @@
               </form>
           </li>
        	</ul>
-       </div>
-     </div>
+      </div>
+    </div>
 
   	<div class="container" role="main">
   		<div class="page-header">
@@ -96,8 +99,13 @@
               <img src="img/earth.jpg" alt="Earth">
             </a>
           </div>
-            <h1>Email Signup: </br>Astronomy Picture of the Day (APOD)</h1>
-      <p class="lead">Get <a href=http://apod.nasa.gov/apod/>APOD</a> in your email inbox each day!</p>
+            <h1>Astronomy Picture of the Day (APOD)</h1>
+            <br/>
+        </div>
+        <div class="row">
+          <div class="col-xs-10">
+            <p class="lead">Get <a href=http://apod.nasa.gov/apod/>APOD</a> in your email inbox each day!</p>
+          </div>
         </div>
   		</div>
 		<p>The APOD pictures are brought to you by
@@ -105,17 +113,13 @@
 		<a href=http://antwrp.gsfc.nasa.gov/htmltest/jbonnell/www/bonnell.html>Jerry Bonnell</a>.
 		Please comply with all copyright notices.</p>
 
-<!--     <div class="alert alert-danger" role="alert">
-      <span class="glyphicon glyphicon-bullhorn"></span>
-      The APOD emails are turned off temporarily. They will be turned back on within the next few days!
-    </div>
- -->		<div id="form-answer">
+		<div id="form-answer">
 		</div>
 
 
 <div id="form-container">
 	<div class="panel panel-primary">
-		<div class="panel-heading">Signup (or remove)</div>
+		<div class="panel-heading">Email Signup (or removal)</div>
 		<div class="panel-body">
 
 		    <form id="request-form" method="post" onsubmit="return false">
@@ -132,12 +136,15 @@
 	    		    <label><input id="addremove" type="radio" name="signup" value=remove onclick="hideRecaptcha('recaptcha_div');">Remove</label>
 			    </div>
 
-		      <div id="recaptcha_div">
+<!--            
+            <div class="g-recaptcha" data-sitekey="{{captcha_secret}}"></div>
+-->
+          <div id="recaptcha_div">
 		        <script type="text/javascript"
-		           src="http://www.google.com/recaptcha/api/challenge?k={{captcha_secret}}">
+		           src="https://www.google.com/recaptcha/api/challenge?k={{captcha_secret}}">
 		        </script>
 		        <noscript>
-		           <iframe src="http://www.google.com/recaptcha/api/noscript?k={{captcha_secret}}"
+		           <iframe src="https://www.google.com/recaptcha/api/noscript?k={{captcha_secret}}"
 		               height="300" width="500" frameborder="0"></iframe><br>
 		           <textarea name="recaptcha_challenge_field" rows="3" cols="40">
 		           </textarea>
@@ -145,7 +152,8 @@
 		               value="manual_challenge">
 		        </noscript>
 		      </div>
-
+<!--            
+-->
 		        <button type="submit" class="btn btn-primary">Submit</button>
 
 		    </form>
