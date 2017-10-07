@@ -25,7 +25,7 @@ class SignupHandler(webapp2.RequestHandler):
                      self.request.get('string'), self.request.get('signup'), self.request.get('reference'), self.request.get('comments'))
 
         # first validate the email address
-        if not email_re.search(self.request.get('string')):
+        if not email_re.match(self.request.get('string')):
             error_msg = "This address - %s - is not a valid email address. Check the formatting." % self.request.get('string')
             logging.error(error_msg)
             self.response.out.write("Oops. The email address was malformed! Please try again.")
