@@ -1,5 +1,5 @@
 application: apodemail-hrd
-version: recaptcha-upgrade
+version: email-unsubscribe
 runtime: python27
 api_version: 1
 threadsafe: true
@@ -13,6 +13,10 @@ libraries:
 
 builtins:
 - appstats: on
+
+inbound_services:
+- mail
+- mail_bounce
 
 handlers:
 - url: /dailyemail/(.*)
@@ -50,5 +54,14 @@ handlers:
   script: main.app
   login: admin
 
+- url: /_ah/bounce
+  script: signup.app
+  login: admin
+
+- url: /_ah/mail/.+
+  script: signup.app
+  login: admin
+
 - url: /.*
   script: main.app
+

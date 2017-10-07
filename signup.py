@@ -8,6 +8,10 @@ from google.appengine.api.labs.taskqueue import Task
 from google.appengine.ext import db
 from google.appengine.ext.webapp import template
 
+from google.appengine.ext.webapp.mail_handlers import BounceNotificationHandler
+from google.appengine.ext.webapp.mail_handlers import InboundMailHandler
+
+
 from django.core.validators import email_re
 
 import config
@@ -99,42 +103,14 @@ class SignupHandler(webapp2.RequestHandler):
                 msg = cResponse.error_code
                 logging.error('Captcha Fail %s ' % msg)
 
+            # send the SIGNUP message off...
+            if not blocked:
+                logging.debug("Sending email!")
+                task = Task(url='/emailqueue', params={'email':message.to,'subject':message.subject,'body':message.html,'bcc':bcc})
+                task.add('emailqueue')
+
         else:
-            email_addr = self.request.get('string').lower()
-            # if removing a user, first check to see that the request is valid
-            q = db.GqlQuery("SELECT * FROM UserSignup WHERE email = :1", email_addr)
-            remove_entry = q.fetch(1)
-            if len(remove_entry) > 0:
-                # if the user was found, remove them
-                db.delete(remove_entry)
-
-                # setup the specific email parameters
-                message.subject="APOD Email Removal Request"
-                message.to = self.request.get('string')
-                template_values = { 'email':email_addr,
-                                    'referral':self.request.get('reference'),
-                                    'notes':self.request.get('comments'),
-                                 }
-                path = os.path.join(os.path.dirname(__file__), 'templates/removed-email.html')
-                message.html = template.render(path,template_values)
-
-                # ... and show the thank you confirmation page
-                msg = "<h2>You've been removed from the list... Thanks!</h2>"
-
-                # email me if they've left comments
-                if len(self.request.get('comments')) > 0:
-                    bcc = True
-            else:
-                error_msg = "This address - %s - is not on the distribution list!?" % email_addr
-                logging.error(error_msg)
-                msg = "Oops. This address doesn't appear to be on the list."
-                blocked = True
-
-        # send the message off...
-        if not blocked:
-            logging.debug("Sending email!")
-            task = Task(url='/emailqueue', params={'email':message.to,'subject':message.subject,'body':message.html,'bcc':bcc})
-            task.add('emailqueue')
+            msg = unsubscribe(self.request.get('string'),self.request.get('comments'))
 
         # report back on the status
         logging.debug(msg)
@@ -156,12 +132,82 @@ class DeleteUserHandler(webapp2.RequestHandler):
             user.delete()
 ## end
 
+class LogBounceHandler(BounceNotificationHandler):
+    def receive(self, bounce_message):
+        logging.info('Received bounce post ... [%s]', self.request)
+        logging.info('Bounce original: %s', bounce_message.original)
+        logging.info('Bounce notification: %s', bounce_message.notification)
+        #unsubsribe()
+
+## end bounce handler
+
+class UnsubscribeHandler(InboundMailHandler):
+    def receive(self, mail_message):
+        sender_string = mail_message.sender.lower()
+        sender_email = sender_string
+        if "<" in sender_string and ">" in sender_string:
+            sender_email = sender_string.split('<')[1].split('>')[0]
+
+        logging.info("Received a message from: " + sender_email)
+        logging.info("Subject: " + mail_message.subject.lower())
+
+        if mail_message.subject.lower() == "unsubscribe":
+            logging.info("Unsubscribing " + sender_email + " via email ")
+            unsubscribe(sender_email,'email unsubscribe')
+        else:
+            logging.info("Invalid subject. Do nothing for, " + mail_message.subject)
+            
+## end unsubscribe handler
+
+def unsubscribe(email,notes):
+    blocked = False
+    bcc = False
+    message = mail.EmailMessage(sender="APOD Email <gtracy@gmail.com>")
+
+    email_addr = email.lower()
+    q = db.GqlQuery("SELECT * FROM UserSignup WHERE email = :1", email_addr)
+    remove_entry = q.fetch(1)
+    if len(remove_entry) > 0:
+        # if the user was found, remove them
+        db.delete(remove_entry)
+
+        # setup the specific email parameters
+        message.subject="APOD Email Removal Request"
+        message.to = email_addr
+        template_values = {'email':email_addr,'notes':notes}
+        path = os.path.join(os.path.dirname(__file__), 'templates/removed-email.html')
+        message.html = template.render(path,template_values)
+
+        # ... and show the thank you confirmation page
+        msg = "<h2>You've been removed from the list... Thanks!</h2>"
+
+        # email me if they've left comments
+        if notes and len(notes) > 0:
+            bcc = True
+    else:
+        error_msg = "This address - %s - is not on the distribution list!?" % email_addr
+        logging.error(error_msg)
+        msg = "Oops. This address doesn't appear to be on the list."
+        blocked = True
+
+    # send the message off...
+    if not blocked:
+        logging.debug("Sending email!")
+        task = Task(url='/emailqueue', params={'email':message.to,'subject':message.subject,'body':message.html,'bcc':bcc})
+        task.add('emailqueue')
+
+    return msg
+
+## end unsubscribe
+
 
 #
 # Create the WSGI application instance for the APOD signup
 #
 app = webapp2.WSGIApplication([('/signup', SignupHandler),
-                               ('/admin/delete/user', DeleteUserHandler)
+                               ('/admin/delete/user', DeleteUserHandler),
+                               (LogBounceHandler.mapping()),
+                               (UnsubscribeHandler.mapping())
                               ], debug=True)
 
 

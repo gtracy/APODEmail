@@ -4,6 +4,7 @@ import re
 import logging
 import time
 import datetime
+import calendar
 
 from google.appengine.api import users
 from google.appengine.api import mail
@@ -43,16 +44,17 @@ class MainHandler(webapp2.RequestHandler):
 class FetchHandler(webapp2.RequestHandler):
 
     def get(self, year, start, end):
-        logging.info("fetch APOD for year : %s, start : %s, end : %s" % (year,start,end))
+        end_day = calendar.monthrange(int(year),int(end))[1]
+        logging.info("fetch APOD for year : %s, start : %s, end : %s, day : %s" % (year,start,end,end_day))
         start = datetime.datetime(int(year),int(start),1)
-        end = datetime.datetime(int(year),int(end),31,23,59,59)
+        end = datetime.datetime(int(year),int(end),end_day,23,59,59)
         logging.info("%s : %s" % (start,end))
 
         user = users.get_current_user()
         if user or self.request.headers['X-AppEngine-Cron']:
             fetchAPOD(self, start, end, True)
         else:
-            logging.error("failed to find a user! Baling out...")
+            logging.error("failed to find a user! bailing out...")
 
 ## end FetchHandler
 
@@ -142,12 +144,16 @@ class AdhocEmailHandler(webapp2.RequestHandler):
         path = os.path.join(os.path.dirname(__file__), template_file)
         body = template.render(path, template_values)
 
-        users = db.GqlQuery("SELECT email FROM UserSignup")
-        for u in users:
-            #logging.info('Sending email to %s ' % u.email)
-            task = Task(url='/emailqueue', params={'email':u.email,'subject':subject,'body':body})
-            task.add('emailqueue')
+        # users = db.GqlQuery("SELECT email FROM UserSignup")
+        # for u in users:
+        #     #logging.info('Sending email to %s ' % u.email)
+        #     task = Task(url='/emailqueue', params={'email':u.email,'subject':subject,'body':body})
+        #     task.add('emailqueue')
 
+        # self.response.out.write(template.render(path, template_values))
+
+        task = Task(url='/emailqueue', params={'email':'gtracy@gmail.com','subject':'testing','body':body})
+        task.add('emailqueue')
         self.response.out.write(template.render(path, template_values))
 
 ## end ApologyHandler
@@ -156,7 +162,8 @@ class AdhocEmailHandler(webapp2.RequestHandler):
 urlbase = "http://apod.nasa.gov/apod"
 url = urlbase + "/astropix.html"
 myemail = 'gtracy@gmail.com'
-footerText = "<hr><p><i><strong>This is an automated email. If you notice any problems, just send me a note at <a href=mailto:gtracy@gmail.com>gtracy@gmail.com</a>. You can add and remove email addresses to this distribution list here, <a href=http://apodemail.org>http://apodemail.org</a>.</strong></i></p>"
+footerText = "<hr><p><i><strong>This is an automated email. If you notice any problems, just send me a note at <a href=mailto:gtracy@gmail.com>gtracy@gmail.com</a>. You can add and remove email addresses to this distribution list here, <a href=http://apodemail.org>http://apodemail.org</a>.</strong></i><a href='mailto:unsubscribe@apodemail-hrd.appspotemail.com?Subject=unsubscribe'>Unsubscribe</a></p>"
+#googleAnalytics = "http://www.google-analytics.com/collect?v=1&tid=UA-12345678-1&cid=CLIENT_ID_NUMBER&t=event&ec=email&ea=open&el=recipient_id&cs=newsletter&cm=email&cn=Campaign_Name"
 
 def fetchAPOD(self, start, end, sendEmail):
 
