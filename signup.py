@@ -25,8 +25,9 @@ class SignupHandler(webapp2.RequestHandler):
                      self.request.get('string'), self.request.get('signup'), self.request.get('reference'), self.request.get('comments'))
 
         # first validate the email address
-        if not email_re.match(self.request.get('string')):
-            error_msg = "This address - %s - is not a valid email address. Check the formatting." % self.request.get('string')
+        email_addr = self.request.get('string').lower().strip()
+        if not email_re.match(email_addr):
+            error_msg = "This address - %s - is not a valid email address. Check the formatting." % email_addr
             logging.error(error_msg)
             self.response.out.write("Oops. The email address was malformed! Please try again.")
             return
@@ -48,7 +49,6 @@ class SignupHandler(webapp2.RequestHandler):
                 remoteip)
             if cResponse.is_valid:
                 logging.debug('Captcha Success!')
-                email_addr = self.request.get('string').lower()
 
                 # first check to see if the user is already on the list
                 q = db.GqlQuery("SELECT * FROM UserSignup WHERE email = :1", email_addr)
@@ -110,7 +110,7 @@ class SignupHandler(webapp2.RequestHandler):
                 task.add('emailqueue')
 
         else:
-            msg = unsubscribe(self.request.get('string'),self.request.get('comments'))
+            msg = unsubscribe(email_addr,self.request.get('comments'))
 
         # report back on the status
         logging.debug(msg)
