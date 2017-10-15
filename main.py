@@ -162,7 +162,7 @@ class AdhocEmailHandler(webapp2.RequestHandler):
 urlbase = "http://apod.nasa.gov/apod"
 url = urlbase + "/astropix.html"
 myemail = 'gtracy@gmail.com'
-footerText = "<hr><p><i><strong>This is an automated email. If you notice any problems, just send me a note at <a href=mailto:gtracy@gmail.com>gtracy@gmail.com</a>. You can add and remove email addresses to this distribution list here, <a href=http://apodemail.org>http://apodemail.org</a>.</strong></i><a href='mailto:unsubscribe@apodemail-hrd.appspotemail.com?Subject=unsubscribe'>Unsubscribe</a></p>"
+footerText = "<hr><p><i><strong>This is an automated email. If you notice any problems, just send me a note at <a href=mailto:gtracy@gmail.com>gtracy@gmail.com</a>. You can add and remove email addresses to this distribution list here, <a href=http://apodemail.org>http://apodemail.org</a>.</strong></i><a href='mailto:unsubscribe@apodemail-hrd.appspotmail.com?Subject=unsubscribe'>Unsubscribe</a></p>"
 #googleAnalytics = "http://www.google-analytics.com/collect?v=1&tid=UA-12345678-1&cid=CLIENT_ID_NUMBER&t=event&ec=email&ea=open&el=recipient_id&cs=newsletter&cm=email&cn=Campaign_Name"
 
 def fetchAPOD(self, start, end, sendEmail):
