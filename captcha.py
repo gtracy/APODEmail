@@ -3,7 +3,7 @@ import json
 import logging
 
 API_SSL_SERVER="https://www.google.com/recaptcha/api"
-API_SERVER="http://www.google.com/recaptcha/api"
+API_SERVER="https://www.google.com/recaptcha/api"
 VERIFY_SERVER="www.google.com"
 
 class RecaptchaResponse(object):

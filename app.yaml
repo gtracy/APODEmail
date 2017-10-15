@@ -1,5 +1,5 @@
 application: apodemail-hrd
-version: email-unsubscribe
+version: https-updates
 runtime: python27
 api_version: 1
 threadsafe: true
