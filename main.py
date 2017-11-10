@@ -76,6 +76,7 @@ class EmailWorker(webapp2.RequestHandler):
                 apod_message.bcc = 'gtracy@gmail.com'
 
             apod_message.send()
+            logging.info(email)
 
         except apiproxy_errors.DeadlineExceededError:
             logging.error("DeadlineExceededError exception!?! Try to set status and return normally")
@@ -143,14 +144,6 @@ class AdhocEmailHandler(webapp2.RequestHandler):
         template_values = {  }
         path = os.path.join(os.path.dirname(__file__), template_file)
         body = template.render(path, template_values)
-
-        # users = db.GqlQuery("SELECT email FROM UserSignup")
-        # for u in users:
-        #     #logging.info('Sending email to %s ' % u.email)
-        #     task = Task(url='/emailqueue', params={'email':u.email,'subject':subject,'body':body})
-        #     task.add('emailqueue')
-
-        # self.response.out.write(template.render(path, template_values))
 
         task = Task(url='/emailqueue', params={'email':'gtracy@gmail.com','subject':'testing','body':body})
         task.add('emailqueue')

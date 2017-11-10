@@ -2,6 +2,7 @@ import webapp2
 import os
 import re
 import logging
+import json
 
 from google.appengine.api import mail
 from google.appengine.api.labs.taskqueue import Task
@@ -134,10 +135,16 @@ class DeleteUserHandler(webapp2.RequestHandler):
 
 class LogBounceHandler(BounceNotificationHandler):
     def receive(self, bounce_message):
-        logging.info('Received bounce post ... [%s]', self.request)
-        logging.info('Bounce original: %s', bounce_message.original)
-        logging.info('Bounce notification: %s', bounce_message.notification)
-        #unsubsribe()
+        logging.debug(type(bounce_message))
+        logging.debug(type(bounce_message.original))
+        bounced = bounce_message.original
+        logging.debug(bounced)
+
+        #logging.info('Received bounce post ... [%s]', self.request)
+        #logging.info('Bounce original: %s', bounce_message.original)
+        logging.info('Bounced message for: %s', bounced['to'])
+        #logging.info('Bounce notification: %s', bounce_message.notification)
+        unsubscribe(bounced['to'], "auto unsubscribe from a bounce",True)
 
 ## end bounce handler
 
@@ -159,8 +166,7 @@ class UnsubscribeHandler(InboundMailHandler):
             
 ## end unsubscribe handler
 
-def unsubscribe(email,notes):
-    blocked = False
+def unsubscribe(email,notes,blocked=False):
     bcc = False
     message = mail.EmailMessage(sender="APOD Email <gtracy@gmail.com>")
 
