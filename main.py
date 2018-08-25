@@ -52,7 +52,7 @@ class FetchHandler(webapp2.RequestHandler):
 
         user = users.get_current_user()
         if user or self.request.headers['X-AppEngine-Cron']:
-            fetchAPOD(self, start, end, True)
+            fetchAPOD(self, True, start, end)
         else:
             logging.error("failed to find a user! bailing out...")
 
@@ -151,6 +151,10 @@ class AdhocEmailHandler(webapp2.RequestHandler):
 
 ## end ApologyHandler
 
+class TestParseHandler(webapp2.RequestHandler):
+    def get(self):
+        fetchAPOD(self, False)
+
 
 urlbase = "https://apod.nasa.gov/apod"
 url = urlbase + "/astropix.html"
@@ -158,7 +162,7 @@ myemail = 'gtracy@gmail.com'
 footerText = "<hr><p><i><strong>This is an automated email. If you notice any problems, just send me a note at <a href=mailto:gtracy@gmail.com>gtracy@gmail.com</a>. You can add and remove email addresses to this distribution list here, <a href=https://apodemail.org>https://apodemail.org</a>.</strong></i><a href='mailto:unsubscribe@apodemail-hrd.appspotmail.com?Subject=unsubscribe'>Unsubscribe</a></p>"
 #googleAnalytics = "https://www.google-analytics.com/collect?v=1&tid=UA-12345678-1&cid=CLIENT_ID_NUMBER&t=event&ec=email&ea=open&el=recipient_id&cs=newsletter&cm=email&cn=Campaign_Name"
 
-def fetchAPOD(self, start, end, sendEmail):
+def fetchAPOD(self, sendEmail, start, end):
 
      logging.debug("fetching the APOD site...")
 
@@ -184,6 +188,20 @@ def fetchAPOD(self, start, end, sendEmail):
 
      soup = BeautifulSoup(result.content)
      #logging.debug(soup)
+
+     # APOD is using an iframe for post YouTube videos. try to spot these cases
+     # and treat them differently so the video shows up in the email
+     #
+     # sample HTML from an APOD page,
+     #
+     #    <iframe src="https://www.youtube.com/embed/By6sZ6RGCEQ?rel=0" allow="autoplay; encrypted-media" allowfullscreen="" width="960" height="540" frameborder="0"></iframe>
+     #
+     iframe = soup.findAll('iframe')[0]
+     logging.debug(iframe['src'])
+     # if we find one, replace the iframe content
+     if iframe:
+         iframe.replaceWith('<')
+
 
      # fix all of the relative links
      for a in soup.html.body.findAll('a'):
@@ -220,9 +238,12 @@ def fetchAPOD(self, start, end, sendEmail):
             user_count += 1
             task = Task(url='/emailqueue', params={'title':title,'email':u.email,'subject':subject,'body':str(soup)})
             task.add('emailqueue')
+        logging.info('Spawned %s email tasks for %s' % (user_count, start))
+        self.response.out.write('%s %s' % (subject, user_count))
+    else:
+        return str(soup)
 
-     logging.info('Spawned %s email tasks for %s' % (user_count, start))
-     self.response.out.write('%s %s' % (subject, user_count))
+## end fetchAPOD()
 
 
 #
@@ -234,5 +255,6 @@ app = webapp2.WSGIApplication([('/', MainHandler),
                                ('/emailqueue', EmailWorker),
                                ('/usercount', BackgroundCountHandler),
                                ('/admin/clean', CleanEmailsHandler),
+                               ('/test/parse', TestParseHandler)
                               ],
                               debug=True)
