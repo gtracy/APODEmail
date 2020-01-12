@@ -1,6 +1,6 @@
 queue:
 - name: emailqueue
-  rate: 60/m
+  rate: 20/s
   bucket_size: 1
 
 - name: fetchqueue
