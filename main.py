@@ -210,7 +210,7 @@ def fetchAPOD(self, start, end, sendEmail):
      subject = "APOD - %s" % title
 
      # is this a video/youtube APOD?
-     if soup('iframe')[0]:
+     if soup('iframe') and soup('iframe')[0]:
          video_src = soup.find('iframe')['src']
          # push in the youtube link and a video preview image
          video_id = re.findall('embed/(\S+)[?]', video_src)
