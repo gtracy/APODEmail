@@ -149,7 +149,7 @@ class AdhocEmailHandler(webapp2.RequestHandler):
         task.add('emailqueue')
         self.response.out.write(template.render(path, template_values))
 
-## end ApologyHandler
+## end AdhocEmailHandler
 
 
 urlbase = "https://apod.nasa.gov/apod"
@@ -209,9 +209,20 @@ def fetchAPOD(self, start, end, sendEmail):
      title = soup('center')[1].b.string
      subject = "APOD - %s" % title
 
-     # template_values = { 'content':soup }
-     # path = os.path.join(os.path.dirname(__file__), 'templates/cron.html')
-     # self.response.out.write(template.render(path, template_values))
+     # is this a video/youtube APOD?
+     if soup('iframe')[0]:
+         video_src = soup.find('iframe')['src']
+         # push in the youtube link and a video preview image
+         video_id = re.findall('embed/(\S+)[?]', video_src)
+         logging.info(video_src)
+         logging.info(video_id[0])
+         soup('br')[0].insert(0,"<center><a href=\"%s\">%s</a></center><br>" % (video_src,video_src))
+         img_src = "https://img.youtube.com/vi/%s/hqdefault.jpg" % video_id[0]
+         soup('br')[0].insert(1,"<center><a href=\"%s\"><img src=\"%s\"></a></center><br>" % (video_src,img_src))
+
+    #  template_values = { 'content':soup }
+    #  path = os.path.join(os.path.dirname(__file__), 'templates/cron.html')
+    #  self.response.out.write(template.render(path, template_values))
 
      user_count = 0
      if sendEmail:
