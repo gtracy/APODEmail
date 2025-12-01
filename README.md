@@ -1,3 +1,5 @@
+***This project is end of lifed. See [APODEmail-node](https://github.com/gtracy/APODEmail-node) for active implementation***
+
 APOD Email
 ========
 This project provides a mechanism to distribute the Astronomy Picture of the Day (APOD) via email.
